@@ -134,7 +134,8 @@ const invoices = {
 const notifications = {
   getAll: (req, res) => {
     let list = db.getNotifications();
-    if (req.user.role !== "admin") list = list.filter((n) => n.targetUserId === req.user.id || n.targetUserId === null);
+    // Tất cả các vai trò chỉ nhận thông báo của bản thân (không có vai trò nào xem toàn bộ)
+    list = list.filter((n) => n.targetUserId === req.user.id || n.targetUserId === null);
     const { unread } = req.query;
     if (unread === "true") list = list.filter((n) => !n.read);
     return res.json({ success: true, unreadCount: list.filter((n) => !n.read).length, total: list.length, data: list });
