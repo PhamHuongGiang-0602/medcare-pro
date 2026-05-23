@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 // ============================================================
@@ -69,7 +69,7 @@ const USERS = [
   { username: "doctor",    password: "doctor123",    role: "doctor",       name: "BS. Nguyễn Văn An" },
   { username: "patient",   password: "patient123",   role: "patient",      name: "Hoàng Thị Mai" },
   { username: "reception", password: "reception123", role: "receptionist", name: "Lễ tân Minh Châu" },
-  { username: "sysadmin",  password: "sysadmin123",  role: "system_admin", name: "Quản trị viên Hệ thống" },
+  { username: "admin",     password: "admin123",     role: "system_admin", name: "Quản trị viên Hệ thống" },
 ];
 
 // ============================================================
@@ -194,7 +194,7 @@ function LoginPage({ onLogin }) {
             </div>
             <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-white/50 text-xs font-semibold mb-2">Tài khoản demo:</p>
-              {[["admin","admin123","Quản trị viên"],["doctor","doctor123","Bác sĩ"],["patient","patient123","Bệnh nhân"],["reception","reception123","Lễ tân"]].map(([u,p,r]) => (
+              {[["director","director123","Ban Giám đốc"],["admin","admin123","Quản trị viên"],["doctor","doctor123","Bác sĩ"],["reception","reception123","Lễ tân"],["patient","patient123","Bệnh nhân"]].map(([u,p,r]) => (
                 <button key={u} onClick={() => { setForm({username:u,password:p}); }}
                   className="w-full text-left text-xs text-white/40 hover:text-white/70 py-0.5 transition-colors">
                   <span className="text-blue-400">{u}</span> / {p} — {r}
@@ -595,7 +595,7 @@ function QRPaymentModal({ open, onClose, invoice, onConfirm }) {
   const [confirmed, setConfirmed] = useState(false);
 
   // Reset state mỗi khi mở modal mới
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) setConfirmed(false);
   }, [open, invoice]);
 
@@ -746,7 +746,11 @@ function Payments({ user }) {
                   <td className="px-4 py-3 text-gray-600">{inv.date}</td>
                   <td className="px-4 py-3 text-gray-600 text-xs">{inv.services.map(s=>s.name).join(", ")}</td>
                   <td className="px-4 py-3 font-bold text-gray-800">{inv.total.toLocaleString("vi-VN")}đ</td>
-                  <td className="px-4 py-3"><Badge status={inv.status} /></td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${inv.status === "paid" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                      {inv.status === "paid" ? "Đã thanh toán" : "Chưa thanh toán"}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     {inv.status === "pending" ? (
                       <button onClick={() => setSelected(inv)} className="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-semibold hover:bg-blue-600 transition-colors">Thanh toán</button>

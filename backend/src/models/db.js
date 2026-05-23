@@ -7,7 +7,12 @@ const bcrypt = require("bcryptjs");
 
 // ---- USERS ----
 const users = [
-  { id: "u1", username: "admin",      passwordHash: bcrypt.hashSync("admin123", 10),      role: "admin",        name: "Quản trị viên",      email: "admin@medcare.vn",      phone: "0900000001", active: true },
+  // Ban Giám đốc: chỉ xem báo cáo thống kê + thông báo của bản thân
+  { id: "u1", username: "director",    passwordHash: bcrypt.hashSync("director123", 10),    role: "director",     name: "Giám đốc Trần Văn Bình",  email: "director@medcare.vn",  phone: "0900000001", active: true },
+  // Ban Quản lý: báo cáo thống kê + thông báo của bản thân
+  { id: "u7", username: "manager",     passwordHash: bcrypt.hashSync("manager123", 10),     role: "manager",      name: "Quản lý Lê Thị Hương",    email: "manager@medcare.vn",   phone: "0900000007", active: true },
+  // Quản trị viên hệ thống: chỉ quản trị hệ thống + thông báo của bản thân
+  { id: "u6", username: "admin",       passwordHash: bcrypt.hashSync("admin123", 10),       role: "system_admin", name: "Quản trị viên Hệ thống", email: "admin@medcare.vn",     phone: "0900000006", active: true },
   { id: "u2", username: "doctor1",    passwordHash: bcrypt.hashSync("doctor123", 10),     role: "doctor",       name: "BS. Nguyễn Văn An",   email: "an@medcare.vn",         phone: "0900000002", active: true, doctorId: "d1" },
   { id: "u3", username: "doctor2",    passwordHash: bcrypt.hashSync("doctor123", 10),     role: "doctor",       name: "BS. Trần Thị Bình",   email: "binh@medcare.vn",       phone: "0900000003", active: true, doctorId: "d2" },
   { id: "u4", username: "patient",    passwordHash: bcrypt.hashSync("patient123", 10),    role: "patient",      name: "Hoàng Thị Mai",       email: "mai@gmail.com",         phone: "0901234567", active: true, patientId: "p1" },
