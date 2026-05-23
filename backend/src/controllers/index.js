@@ -17,6 +17,10 @@ const patients = {
   getOne: (req, res) => {
     const p = db.patients.find((p) => p.id === req.params.id);
     if (!p) return res.status(404).json({ success: false, message: "Không tìm thấy bệnh nhân" });
+    // If user is a patient, they can only access their own data
+    if (req.user.role === "patient" && req.user.patientId !== p.id) {
+      return res.status(403).json({ success: false, message: "Bạn không có quyền truy cập thông tin bệnh nhân này" });
+    }
     const records = db.getMedicalRecords().filter((r) => r.patientId === p.id);
     const apts    = db.getAppointments().filter((a) => a.patientId === p.id);
     const invs    = db.getInvoices().filter((i) => i.patientId === p.id);
@@ -110,7 +114,7 @@ const invoices = {
   },
   pay: (req, res) => {
     const { method } = req.body;
-    if (!["Tiền mặt", "Chuyển khoản", "Thẻ"].includes(method))
+    if (!["Tiền mặt", "Chuyển khoản", "Thẻ", "QR"].includes(method))
       return res.status(400).json({ success: false, message: "Phương thức thanh toán không hợp lệ" });
 
     const list = db.getInvoices();

@@ -56,11 +56,20 @@ const SPECIALTY_DATA = [
   { name: "Ngoại tổng quát", value: 20, color: "#f59e0b" }, { name: "Da liễu", value: 17, color: "#8b5cf6" },
 ];
 
+// Phân quyền theo bảng:
+// Ban Giám đốc (director):  Báo cáo thống kê, Thông báo (của bản thân)
+// Ban Quản lý (manager):    Báo cáo thống kê, Thông báo (của bản thân)
+// Bác sĩ (doctor):          Xem lịch khám, Thanh toán, Xem hồ sơ bệnh án, Thông báo (của bản thân)
+// Lễ tân (receptionist):    Xem lịch khám, Thanh toán, Thông báo (của bản thân)
+// Quản trị viên (system_admin): Quản trị hệ thống, Thông báo (của bản thân)
+// Bệnh nhân (patient):      Xem lịch (bản thân), Đặt lịch, Hóa đơn, HSBA (bản thân), Thông báo (bản thân)
 const USERS = [
-  { username: "admin", password: "admin123", role: "admin", name: "Quản trị viên" },
-  { username: "doctor", password: "doctor123", role: "doctor", name: "BS. Nguyễn Văn An" },
-  { username: "patient", password: "patient123", role: "patient", name: "Hoàng Thị Mai" },
+  { username: "director",  password: "director123",  role: "director",     name: "Giám đốc Trần Văn Bình" },
+  { username: "manager",   password: "manager123",   role: "manager",      name: "Quản lý Lê Thị Hương" },
+  { username: "doctor",    password: "doctor123",    role: "doctor",       name: "BS. Nguyễn Văn An" },
+  { username: "patient",   password: "patient123",   role: "patient",      name: "Hoàng Thị Mai" },
   { username: "reception", password: "reception123", role: "receptionist", name: "Lễ tân Minh Châu" },
+  { username: "sysadmin",  password: "sysadmin123",  role: "system_admin", name: "Quản trị viên Hệ thống" },
 ];
 
 // ============================================================
@@ -202,33 +211,41 @@ function LoginPage({ onLogin }) {
 // ============================================================
 // SIDEBAR
 // ============================================================
+// NAV theo bảng phân quyền:
+// Ban Giám đốc: Báo cáo thống kê + Thông báo (của bản thân)
+// Ban Quản lý:  Báo cáo thống kê + Thông báo (của bản thân)
+// Bác sĩ: Xem lịch khám + Thanh toán (xử lý) + Xem HSBA + Thông báo
+// Lễ tân: Xem lịch khám + Thanh toán (xử lý) + Thông báo
+// Quản trị viên: Quản trị hệ thống + Thông báo
+// Bệnh nhân: Đặt lịch + Xem lịch bản thân + HSBA bản thân + Hóa đơn + Thông báo
 const NAV = {
-  admin: [
-    { id: "dashboard", icon: "📊", label: "Dashboard" },
-    { id: "appointments", icon: "📅", label: "Lịch khám" },
-    { id: "records", icon: "📋", label: "Hồ sơ bệnh án" },
-    { id: "payments", icon: "💳", label: "Thanh toán" },
+  director: [
+    { id: "reports",       icon: "📈", label: "Báo cáo thống kê" },
     { id: "notifications", icon: "🔔", label: "Thông báo" },
-    { id: "reports", icon: "📈", label: "Báo cáo" },
-    { id: "settings", icon: "⚙️", label: "Quản trị" },
+  ],
+  manager: [
+    { id: "reports",       icon: "📈", label: "Báo cáo thống kê" },
+    { id: "notifications", icon: "🔔", label: "Thông báo" },
   ],
   doctor: [
-    { id: "dashboard", icon: "📊", label: "Tổng quan" },
-    { id: "appointments", icon: "📅", label: "Lịch khám của tôi" },
-    { id: "records", icon: "📋", label: "Hồ sơ bệnh án" },
-    { id: "notifications", icon: "🔔", label: "Thông báo" },
-  ],
-  patient: [
-    { id: "dashboard", icon: "🏠", label: "Trang chủ" },
-    { id: "appointments", icon: "📅", label: "Đặt lịch khám" },
-    { id: "records", icon: "📋", label: "Hồ sơ của tôi" },
-    { id: "payments", icon: "💳", label: "Hóa đơn" },
+    { id: "appointments",  icon: "📅", label: "Lịch khám" },
+    { id: "records",       icon: "📋", label: "Hồ sơ bệnh án" },
+    { id: "payments",      icon: "💳", label: "Thanh toán" },
     { id: "notifications", icon: "🔔", label: "Thông báo" },
   ],
   receptionist: [
-    { id: "dashboard", icon: "📊", label: "Tổng quan" },
-    { id: "appointments", icon: "📅", label: "Quản lý lịch khám" },
-    { id: "payments", icon: "💳", label: "Thanh toán" },
+    { id: "appointments",  icon: "📅", label: "Quản lý lịch khám" },
+    { id: "payments",      icon: "💳", label: "Thanh toán" },
+    { id: "notifications", icon: "🔔", label: "Thông báo" },
+  ],
+  system_admin: [
+    { id: "settings",      icon: "⚙️", label: "Quản trị hệ thống" },
+    { id: "notifications", icon: "🔔", label: "Thông báo" },
+  ],
+  patient: [
+    { id: "appointments",  icon: "📅", label: "Đặt lịch khám" },
+    { id: "records",       icon: "📋", label: "Hồ sơ của tôi" },
+    { id: "payments",      icon: "💳", label: "Hóa đơn" },
     { id: "notifications", icon: "🔔", label: "Thông báo" },
   ],
 };
@@ -255,7 +272,7 @@ function Sidebar({ user, activeTab, onNav, collapsed, onToggle }) {
         {!collapsed && (
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 mb-2">
             <Avatar initials={user.name.charAt(0)} color="#3b82f6" size="sm" />
-            <div className="overflow-hidden"><p className="text-white text-xs font-semibold truncate">{user.name}</p><p className="text-gray-500 text-xs capitalize">{user.role}</p></div>
+            <div className="overflow-hidden"><p className="text-white text-xs font-semibold truncate">{user.name}</p><p className="text-gray-500 text-xs">{{"director":"Ban Giám đốc","manager":"Ban Quản lý","doctor":"Bác sĩ","receptionist":"Lễ tân","system_admin":"Quản trị viên","patient":"Bệnh nhân"}[user.role] || user.role}</p></div>
           </div>
         )}
         <button onClick={onToggle} className="w-full flex items-center justify-center p-2 text-gray-500 hover:text-white transition-colors rounded-xl hover:bg-white/5 text-sm">
@@ -466,7 +483,7 @@ function MedicalRecords({ user }) {
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div><h2 className="text-2xl font-black text-gray-800">Hồ sơ bệnh án điện tử</h2><p className="text-gray-500 text-sm">Lưu trữ toàn bộ lịch sử khám và điều trị</p></div>
-        {(user.role === "doctor" || user.role === "admin") && (
+        {(user.role === "director" || user.role === "manager") && (
           <button onClick={() => setShowAdd(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-colors shadow-sm">
             <span>+</span> Tạo hồ sơ mới
           </button>
@@ -573,18 +590,131 @@ function MedicalRecords({ user }) {
 // ============================================================
 // PAYMENTS
 // ============================================================
+// QR Payment Modal — hiển thị mã QR và chờ xác nhận
+function QRPaymentModal({ open, onClose, invoice, onConfirm }) {
+  const [confirmed, setConfirmed] = useState(false);
+
+  // Reset state mỗi khi mở modal mới
+  React.useEffect(() => {
+    if (open) setConfirmed(false);
+  }, [open, invoice]);
+
+  if (!invoice) return null;
+
+  const qrData = encodeURIComponent(
+    `MedCare|INV:${invoice.id}|AMT:${invoice.total}|PT:${invoice.patientName}|TS:${Date.now()}`
+  );
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrData}&color=1d4ed8&bgcolor=ffffff&qzone=2`;
+
+  const handleConfirm = () => {
+    setConfirmed(true);
+    setTimeout(() => {
+      onConfirm();
+    }, 900);
+  };
+
+  return (
+    <Modal open={open} onClose={onClose} title="Thanh toán QR Code" size="md">
+      <div className="space-y-5">
+        {/* Thông tin hóa đơn */}
+        <div className="bg-blue-50 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-blue-500 font-semibold uppercase tracking-wide">Hóa đơn</p>
+            <p className="text-base font-bold text-gray-800">{invoice.patientName}</p>
+            <p className="text-xs text-gray-500 font-mono">{invoice.id}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-gray-500">Số tiền</p>
+            <p className="text-2xl font-black text-blue-600">{invoice.total.toLocaleString("vi-VN")}đ</p>
+          </div>
+        </div>
+
+        {/* Hướng dẫn */}
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-3">
+          <span className="text-lg mt-0.5">📱</span>
+          <p className="text-sm text-amber-800 leading-relaxed">
+            Mở ứng dụng ngân hàng hoặc ví điện tử, chọn <strong>Quét mã QR</strong>, sau đó quét mã bên dưới để thanh toán. Nhấn <strong>Xác nhận đã thanh toán</strong> sau khi chuyển tiền thành công.
+          </p>
+        </div>
+
+        {/* QR Code */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative">
+            <div className="w-60 h-60 rounded-2xl border-2 border-blue-200 bg-white p-2 shadow-lg flex items-center justify-center">
+              <img
+                src={qrUrl}
+                alt="QR thanh toán"
+                className="w-full h-full rounded-xl"
+                onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }}
+              />
+              <div style={{display:'none'}} className="w-full h-full flex flex-col items-center justify-center gap-2 text-gray-400">
+                <span className="text-4xl">📱</span>
+                <p className="text-xs text-center">Không tải được mã QR.<br/>Vui lòng kiểm tra kết nối.</p>
+              </div>
+            </div>
+            {/* Corner decorators */}
+            <div className="absolute -top-1 -left-1 w-5 h-5 border-t-2 border-l-2 border-blue-500 rounded-tl-lg" />
+            <div className="absolute -top-1 -right-1 w-5 h-5 border-t-2 border-r-2 border-blue-500 rounded-tr-lg" />
+            <div className="absolute -bottom-1 -left-1 w-5 h-5 border-b-2 border-l-2 border-blue-500 rounded-bl-lg" />
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 border-b-2 border-r-2 border-blue-500 rounded-br-lg" />
+          </div>
+          <p className="text-xs text-gray-400 text-center">Hỗ trợ: VietQR · MoMo · ZaloPay · VNPay</p>
+        </div>
+
+        {/* Buttons */}
+        {!confirmed ? (
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <button
+              onClick={onClose}
+              className="py-3 px-4 border border-gray-200 text-gray-600 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={handleConfirm}
+              className="py-3 px-4 bg-green-600 text-white rounded-xl font-semibold text-sm hover:bg-green-700 transition-colors flex items-center justify-center gap-2 shadow-sm"
+            >
+              <span>✅</span> Xác nhận đã thanh toán
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2 py-3">
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl animate-bounce">✅</div>
+            <p className="text-green-700 font-semibold text-sm">Đang xác nhận thanh toán...</p>
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
+}
+
+// ============================================================
 function Payments({ user }) {
   const [invoices, setInvoices] = useState(MOCK_INVOICES);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(null);       // invoice đang chọn phương thức
+  const [qrInvoice, setQrInvoice] = useState(null);     // invoice đang hiện QR
   const [filter, setFilter] = useState("all");
 
   const filtered = invoices.filter(i => filter === "all" || i.status === filter);
   const totalRevenue = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.total, 0);
   const totalPending = invoices.filter(i => i.status === "pending").reduce((s, i) => s + i.total, 0);
 
-  const handlePay = (id, method) => {
-    setInvoices(invoices.map(i => i.id === id ? {...i, status: "paid", method} : i));
+  const handlePay = (method) => {
+    if (!selected) return;
+    if (method === "QR") {
+      // Chuyển sang modal QR riêng, đóng modal chọn phương thức
+      setQrInvoice(selected);
+      setSelected(null);
+      return;
+    }
+    setInvoices(invoices.map(i => i.id === selected.id ? {...i, status: "paid", method} : i));
     setSelected(null);
+  };
+
+  const handleConfirmQr = () => {
+    if (!qrInvoice) return;
+    setInvoices(invoices.map(i => i.id === qrInvoice.id ? {...i, status: "paid", method: "QR"} : i));
+    setQrInvoice(null);
   };
 
   return (
@@ -630,7 +760,9 @@ function Payments({ user }) {
           </table>
         </div>
       </div>
-      <Modal open={!!selected} onClose={() => setSelected(null)} title="Xác nhận thanh toán">
+
+      {/* Modal chọn phương thức thanh toán */}
+      <Modal open={!!selected} onClose={() => setSelected(null)} title="Chọn phương thức thanh toán">
         {selected && (
           <div className="space-y-4">
             <div className="bg-gray-50 rounded-xl p-4 space-y-2">
@@ -646,16 +778,30 @@ function Payments({ user }) {
               </div>
             </div>
             <p className="text-sm font-semibold text-gray-700">Chọn phương thức thanh toán:</p>
-            <div className="grid grid-cols-3 gap-3">
-              {[["💵","Tiền mặt"],["🏦","Chuyển khoản"],["💳","Thẻ"]].map(([icon,method]) => (
-                <button key={method} onClick={() => handlePay(selected.id, method)} className="flex flex-col items-center gap-2 p-4 border-2 border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all font-semibold text-sm text-gray-700">
-                  <span className="text-2xl">{icon}</span>{method}
+            <div className="grid grid-cols-2 gap-3">
+              {[["💵","Tiền mặt"],["🏦","Chuyển khoản"],["💳","Thẻ"],["📱","Mã QR"]].map(([icon,method]) => (
+                <button
+                  key={method}
+                  onClick={() => handlePay(method === "Mã QR" ? "QR" : method)}
+                  className={`flex flex-col items-center gap-2 p-4 border-2 rounded-xl transition-all font-semibold text-sm text-gray-700 hover:shadow-md ${method === "Mã QR" ? "border-blue-300 bg-blue-50 hover:border-blue-500 hover:bg-blue-100" : "border-gray-200 hover:border-blue-400 hover:bg-blue-50"}`}
+                >
+                  <span className="text-3xl">{icon}</span>
+                  <span>{method}</span>
+                  {method === "Mã QR" && <span className="text-xs text-blue-500 font-normal">VietQR · MoMo · ZaloPay</span>}
                 </button>
               ))}
             </div>
           </div>
         )}
       </Modal>
+
+      {/* Modal QR Payment riêng */}
+      <QRPaymentModal
+        open={!!qrInvoice}
+        onClose={() => setQrInvoice(null)}
+        invoice={qrInvoice}
+        onConfirm={handleConfirmQr}
+      />
     </div>
   );
 }
@@ -890,9 +1036,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
 
+  const getDefaultTab = (u) => (NAV[u.role]?.[0]?.id) || "dashboard";
+
   const handleLogout = () => { setUser(null); setActiveTab("dashboard"); };
 
-  if (!user) return <LoginPage onLogin={(u) => { setUser(u); setActiveTab("dashboard"); }} />;
+  if (!user) return <LoginPage onLogin={(u) => { setUser(u); setActiveTab(getDefaultTab(u)); }} />;
 
   const renderContent = () => {
     switch (activeTab) {

@@ -34,6 +34,16 @@ const getAll = (req, res) => {
 const getOne = (req, res) => {
   const apt = db.getAppointments().find((a) => a.id === req.params.id);
   if (!apt) return res.status(404).json({ success: false, message: "Không tìm thấy lịch khám" });
+  
+  // Role-based access control
+  if (req.user.role === "patient" && apt.patientId !== req.user.patientId) {
+    return res.status(403).json({ success: false, message: "Bạn không có quyền truy cập lịch khám này" });
+  }
+  
+  if (req.user.role === "doctor" && apt.doctorId !== req.user.doctorId) {
+    return res.status(403).json({ success: false, message: "Bạn không có quyền truy cập lịch khám này" });
+  }
+  
   return res.json({
     success: true,
     data: { ...apt, patient: db.patients.find((p) => p.id === apt.patientId), doctor: db.doctors.find((d) => d.id === apt.doctorId) },
