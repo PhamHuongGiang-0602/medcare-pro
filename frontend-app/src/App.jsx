@@ -128,7 +128,7 @@ const Modal = ({ open, onClose, title, children, size = "md" }) => {
 // ============================================================
 // LOGIN PAGE
 // ============================================================
-function LoginPage({ onLogin }) {
+function LoginPage({ onLogin, onLog }) {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -138,6 +138,17 @@ function LoginPage({ onLogin }) {
     setError("");
     setTimeout(() => {
       const user = USERS.find(u => u.username === form.username && u.password === form.password);
+      const now = new Date();
+      const entry = {
+        id: Date.now(),
+        time: now.toLocaleString("vi-VN"),
+        username: form.username || "(trống)",
+        role: user ? ({director:"Ban Giám đốc", manager:"Ban Quản lý", doctor:"Bác sĩ", receptionist:"Lễ tân", system_admin:"Quản trị viên", patient:"Bệnh nhân"}[user.role] || user.role) : "—",
+        name: user ? user.name : "—",
+        status: user ? "success" : "fail",
+        ip: "192.168.1.x",
+      };
+      if (onLog) onLog(entry);
       if (user) onLogin(user);
       else setError("Tên đăng nhập hoặc mật khẩu không đúng");
       setLoading(false);
@@ -931,14 +942,14 @@ function Reports() {
 // ============================================================
 // SETTINGS / ADMIN
 // ============================================================
-function Settings() {
+function Settings({ logs = [] }) {
   const [activeSection, setActiveSection] = useState("users");
 
   return (
     <div className="space-y-5">
       <div><h2 className="text-2xl font-black text-gray-800">Quản trị hệ thống</h2><p className="text-gray-500 text-sm">Cấu hình và phân quyền người dùng</p></div>
       <div className="flex gap-2 flex-wrap">
-        {[["users","👥 Người dùng"],["doctors","👨‍⚕️ Bác sĩ"],["security","🔒 Bảo mật"],["system","⚙️ Hệ thống"]].map(([v,l]) => (
+        {[["users","👥 Người dùng"],["doctors","👨‍⚕️ Bác sĩ"],["security","🔒 Bảo mật"],["system","⚙️ Hệ thống"],["logs","📋 Nhật ký đăng nhập"]].map(([v,l]) => (
           <button key={v} onClick={() => setActiveSection(v)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeSection === v ? "bg-blue-500 text-white shadow" : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"}`}>{l}</button>
         ))}
       </div>
@@ -1028,6 +1039,61 @@ function Settings() {
           ))}
         </div>
       )}
+      {activeSection === "logs" && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-gray-700">Nhật ký đăng nhập</h3>
+              <p className="text-xs text-gray-400 mt-0.5">Ghi lại toàn bộ lượt đăng nhập trong phiên làm việc hiện tại</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-lg font-semibold">{logs.length} lượt</span>
+              <span className="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-lg font-semibold">{logs.filter(l=>l.status==="success").length} thành công</span>
+              <span className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded-lg font-semibold">{logs.filter(l=>l.status==="fail").length} thất bại</span>
+            </div>
+          </div>
+          {logs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-gray-300">
+              <span className="text-5xl mb-3">📋</span>
+              <p className="font-semibold text-gray-400">Chưa có nhật ký nào</p>
+              <p className="text-sm text-gray-300 mt-1">Nhật ký sẽ xuất hiện sau mỗi lần đăng nhập</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    {["Thời gian","Tên đăng nhập","Họ tên","Vai trò","Trạng thái","IP"].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {[...logs].reverse().map(log => (
+                    <tr key={log.id} className={`transition-colors ${log.status === "fail" ? "bg-red-50/40 hover:bg-red-50" : "hover:bg-blue-50/20"}`}>
+                      <td className="px-4 py-3 text-xs text-gray-500 font-mono whitespace-nowrap">{log.time}</td>
+                      <td className="px-4 py-3 font-mono font-semibold text-gray-700">{log.username}</td>
+                      <td className="px-4 py-3 text-gray-600">{log.name}</td>
+                      <td className="px-4 py-3">
+                        {log.role !== "—" ? (
+                          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">{log.role}</span>
+                        ) : <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        {log.status === "success"
+                          ? <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">✅ Thành công</span>
+                          : <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-semibold">❌ Thất bại</span>
+                        }
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs text-gray-400">{log.ip}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -1039,12 +1105,14 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
+  const [loginLogs, setLoginLogs] = useState([]);
 
   const getDefaultTab = (u) => (NAV[u.role]?.[0]?.id) || "dashboard";
+  const addLog = (entry) => setLoginLogs(prev => [...prev, entry]);
 
   const handleLogout = () => { setUser(null); setActiveTab("dashboard"); };
 
-  if (!user) return <LoginPage onLogin={(u) => { setUser(u); setActiveTab(getDefaultTab(u)); }} />;
+  if (!user) return <LoginPage onLogin={(u) => { setUser(u); setActiveTab(getDefaultTab(u)); }} onLog={addLog} />;
 
   const renderContent = () => {
     switch (activeTab) {
@@ -1054,7 +1122,7 @@ export default function App() {
       case "payments": return <Payments user={user} />;
       case "notifications": return <Notifications />;
       case "reports": return <Reports />;
-      case "settings": return <Settings />;
+      case "settings": return <Settings logs={loginLogs} />;
       default: return <Dashboard user={user} onNav={setActiveTab} />;
     }
   };
