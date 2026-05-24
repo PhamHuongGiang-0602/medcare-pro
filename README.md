@@ -34,7 +34,7 @@ npm start         # http://localhost:3000
 
 | Username     | Password       | Vai trò          | Quyền truy cập                          |
 |-------------|---------------|-----------------|----------------------------------------|
-| `admin`      | `admin123`     | Quản trị viên    | Full access tất cả module              |
+| `admin`      | `admin123`     | Quản trị viên    |quản lý hệ thống              |
 | `doctor1`    | `doctor123`    | BS. Nguyễn Văn An | Lịch khám của mình, hồ sơ bệnh án, báo cáo |
 | `doctor2`    | `doctor123`    | BS. Trần Thị Bình | Lịch khám của mình, hồ sơ bệnh án     |
 | `patient`    | `patient123`   | Bệnh nhân        | Hồ sơ & lịch khám của mình, hóa đơn  |
