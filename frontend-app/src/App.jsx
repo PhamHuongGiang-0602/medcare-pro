@@ -67,7 +67,7 @@ const USERS = [
   { username: "director",  password: "director123",  role: "director",     name: "Giám đốc Trần Văn Bình" },
   { username: "manager",   password: "manager123",   role: "manager",      name: "Quản lý Lê Thị Hương" },
   { username: "doctor",    password: "doctor123",    role: "doctor",       name: "BS. Nguyễn Văn An" },
-  { username: "patient",   password: "patient123",   role: "patient",      name: "Hoàng Thị Mai" },
+  { username: "patient",   password: "patient123",   role: "patient",      name: "Hoàng Thị Mai",  patientId: "BN001" },
   { username: "reception", password: "reception123", role: "receptionist", name: "Lễ tân Minh Châu" },
   { username: "admin",     password: "admin123",     role: "system_admin", name: "Quản trị viên Hệ thống" },
 ];
@@ -376,7 +376,10 @@ function Appointments({ user }) {
   const [form, setForm] = useState({ patientName: "", doctorId: "", date: "", time: "", type: "Khám bệnh" });
   const [toast, setToast] = useState("");
 
-  const filtered = appointments.filter(a => filter === "all" || a.status === filter);
+  const myAppointments = user.role === "patient" && user.patientId
+    ? appointments.filter(a => a.patientId === user.patientId)
+    : appointments;
+  const filtered = myAppointments.filter(a => filter === "all" || a.status === filter);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
@@ -407,9 +410,11 @@ function Appointments({ user }) {
           <h2 className="text-2xl font-black text-gray-800">Quản lý lịch khám</h2>
           <p className="text-gray-500 text-sm">Tổng cộng {appointments.length} lịch khám</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-colors shadow-sm">
-          <span>+</span> Đặt lịch mới
-        </button>
+        {user.role !== "patient" && (
+          <button onClick={() => setShowModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-colors shadow-sm">
+            <span>+</span> Đặt lịch mới
+          </button>
+        )}
       </div>
       <div className="flex gap-2 flex-wrap">
         {[["all","Tất cả"],["pending","Chờ xác nhận"],["confirmed","Đã xác nhận"],["waiting","Chờ khám"],["completed","Hoàn thành"],["cancelled","Đã hủy"]].map(([v,l]) => (
@@ -435,10 +440,12 @@ function Appointments({ user }) {
                   <td className="px-4 py-3 text-gray-600">{apt.type}</td>
                   <td className="px-4 py-3"><Badge status={apt.status} /></td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-1.5">
-                      {apt.status === "pending" && <button onClick={() => handleConfirm(apt.id)} className="px-2.5 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold hover:bg-green-200 transition-colors">Xác nhận</button>}
-                      {["pending","confirmed","waiting"].includes(apt.status) && <button onClick={() => handleCancel(apt.id)} className="px-2.5 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-200 transition-colors">Hủy</button>}
-                    </div>
+                    {user.role !== "patient" && (
+                      <div className="flex gap-1.5">
+                        {apt.status === "pending" && <button onClick={() => handleConfirm(apt.id)} className="px-2.5 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold hover:bg-green-200 transition-colors">Xác nhận</button>}
+                        {["pending","confirmed","waiting"].includes(apt.status) && <button onClick={() => handleCancel(apt.id)} className="px-2.5 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-200 transition-colors">Hủy</button>}
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -483,11 +490,17 @@ function Appointments({ user }) {
 // MEDICAL RECORDS
 // ============================================================
 function MedicalRecords({ user }) {
-  const [selected, setSelected] = useState(null);
+  const isPatient = user.role === "patient";
+  const selfPatient = isPatient && user.patientId
+    ? MOCK_PATIENTS.find(p => p.id === user.patientId) || null
+    : null;
+  const [selected, setSelected] = useState(selfPatient);
   const [showAdd, setShowAdd] = useState(false);
   const [search, setSearch] = useState("");
 
-  const patients = MOCK_PATIENTS.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()));
+  const patients = isPatient
+    ? (selfPatient ? [selfPatient] : [])
+    : MOCK_PATIENTS.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()));
   const getRecords = (pid) => MOCK_RECORDS.filter(r => r.patientId === pid);
 
   return (
@@ -500,9 +513,9 @@ function MedicalRecords({ user }) {
           </button>
         )}
       </div>
-      <input value={search} onChange={e => setSearch(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400" placeholder="🔍 Tìm kiếm bệnh nhân theo tên hoặc mã..." />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="space-y-3">
+      {!isPatient && <input value={search} onChange={e => setSearch(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400" placeholder="🔍 Tìm kiếm bệnh nhân theo tên hoặc mã..." />}
+      <div className={`grid grid-cols-1 ${!isPatient ? "lg:grid-cols-3" : ""} gap-5`}>
+        {!isPatient && <div className="space-y-3">
           <h3 className="font-bold text-gray-600 text-sm uppercase tracking-wide">Danh sách bệnh nhân ({patients.length})</h3>
           {patients.map(p => {
             const recs = getRecords(p.id);
@@ -519,8 +532,8 @@ function MedicalRecords({ user }) {
               </button>
             );
           })}
-        </div>
-        <div className="lg:col-span-2">
+        </div>}
+        <div className={!isPatient ? "lg:col-span-2" : ""}>
           {!selected ? (
             <div className="bg-white rounded-2xl border border-gray-100 h-64 flex items-center justify-center text-gray-400 flex-col gap-2">
               <span className="text-5xl">📋</span>
@@ -706,9 +719,12 @@ function Payments({ user }) {
   const [qrInvoice, setQrInvoice] = useState(null);     // invoice đang hiện QR
   const [filter, setFilter] = useState("all");
 
-  const filtered = invoices.filter(i => filter === "all" || i.status === filter);
-  const totalRevenue = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.total, 0);
-  const totalPending = invoices.filter(i => i.status === "pending").reduce((s, i) => s + i.total, 0);
+  const myInvoices = user.role === "patient" && user.patientId
+    ? invoices.filter(i => i.patientId === user.patientId)
+    : invoices;
+  const filtered = myInvoices.filter(i => filter === "all" || i.status === filter);
+  const totalRevenue = myInvoices.filter(i => i.status === "paid").reduce((s, i) => s + i.total, 0);
+  const totalPending = myInvoices.filter(i => i.status === "pending").reduce((s, i) => s + i.total, 0);
 
   const handlePay = (method) => {
     if (!selected) return;
@@ -763,7 +779,7 @@ function Payments({ user }) {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {inv.status === "pending" ? (
+                    {inv.status === "pending" && user.role !== "patient" ? (
                       <button onClick={() => setSelected(inv)} className="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-semibold hover:bg-blue-600 transition-colors">Thanh toán</button>
                     ) : (
                       <span className="text-xs text-gray-400">{inv.method}</span>
