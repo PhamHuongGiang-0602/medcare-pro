@@ -63,7 +63,7 @@ const SPECIALTY_DATA = [
 // Lễ tân (receptionist):    Xem lịch khám, Thanh toán, Thông báo (của bản thân)
 // Quản trị viên (system_admin): Quản trị hệ thống, Thông báo (của bản thân)
 // Bệnh nhân (patient):      Xem lịch (bản thân), Đặt lịch, Hóa đơn, HSBA (bản thân), Thông báo (bản thân)
-const USERS = [
+let USERS = [
   { username: "director",  password: "director123",  role: "director",     name: "Giám đốc Trần Văn Bình" },
   { username: "manager",   password: "manager123",   role: "manager",      name: "Quản lý Lê Thị Hương" },
   { username: "doctor",    password: "doctor123",    role: "doctor",       name: "BS. Nguyễn Văn An" },
@@ -128,7 +128,262 @@ const Modal = ({ open, onClose, title, children, size = "md" }) => {
 // ============================================================
 // LOGIN PAGE
 // ============================================================
-function LoginPage({ onLogin, onLog }) {
+// ============================================================
+// REGISTER PAGE (Đăng ký tài khoản bệnh nhân mới)
+// ============================================================
+function RegisterPage({ onBack, onRegistered }) {
+  const [step, setStep] = useState(1); // step 1: thông tin cá nhân, step 2: tài khoản
+  const [form, setForm] = useState({
+    // Bước 1 – Thông tin cá nhân
+    fullName: "", dob: "", gender: "Nam", phone: "", email: "", address: "",
+    bloodType: "A+", allergies: "",
+    // Bước 2 – Tài khoản
+    username: "", password: "", confirmPassword: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const bloodTypes = ["A+","A-","B+","B-","AB+","AB-","O+","O-","Không biết"];
+
+  const validateStep1 = () => {
+    const e = {};
+    if (!form.fullName.trim()) e.fullName = "Vui lòng nhập họ tên";
+    if (!form.dob) e.dob = "Vui lòng chọn ngày sinh";
+    if (!form.phone.trim()) e.phone = "Vui lòng nhập số điện thoại";
+    else if (!/^0\d{9}$/.test(form.phone.trim())) e.phone = "Số điện thoại không hợp lệ (10 số, bắt đầu bằng 0)";
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Email không hợp lệ";
+    if (!form.address.trim()) e.address = "Vui lòng nhập địa chỉ";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const e = {};
+    if (!form.username.trim()) e.username = "Vui lòng nhập tên đăng nhập";
+    else if (form.username.length < 4) e.username = "Tên đăng nhập tối thiểu 4 ký tự";
+    else if (USERS.find(u => u.username === form.username.trim())) e.username = "Tên đăng nhập đã tồn tại";
+    if (!form.password) e.password = "Vui lòng nhập mật khẩu";
+    else if (form.password.length < 6) e.password = "Mật khẩu tối thiểu 6 ký tự";
+    if (!form.confirmPassword) e.confirmPassword = "Vui lòng xác nhận mật khẩu";
+    else if (form.password !== form.confirmPassword) e.confirmPassword = "Mật khẩu không khớp";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateStep1()) setStep(2);
+  };
+
+  const handleSubmit = () => {
+    if (!validateStep2()) return;
+    setLoading(true);
+    setTimeout(() => {
+      const newId = "BN" + String(MOCK_PATIENTS.length + 1).padStart(3, "0") + Date.now().toString().slice(-3);
+      const newPatient = {
+        id: newId, name: form.fullName, dob: form.dob, gender: form.gender,
+        phone: form.phone, address: form.address, bloodType: form.bloodType,
+        allergies: form.allergies || "Không",
+      };
+      MOCK_PATIENTS.push(newPatient);
+      const newUser = {
+        username: form.username.trim(), password: form.password,
+        role: "patient", name: form.fullName, patientId: newId,
+      };
+      USERS.push(newUser);
+      setLoading(false);
+      setSuccess(true);
+      setTimeout(() => { onRegistered && onRegistered(newUser); }, 2000);
+    }, 800);
+  };
+
+  const set = (k, v) => { setForm(f => ({ ...f, [k]: v })); setErrors(e => ({ ...e, [k]: undefined })); };
+  const inputCls = (k) => `w-full bg-white/10 border rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none transition-colors ${errors[k] ? "border-red-400 focus:border-red-400" : "border-white/20 focus:border-blue-400"}`;
+
+  if (success) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0c4a6e 100%)" }}>
+      <div className="text-center text-white">
+        <div className="w-24 h-24 rounded-full bg-green-500/20 border-4 border-green-400 flex items-center justify-center text-5xl mx-auto mb-6 animate-bounce">✓</div>
+        <h2 className="text-3xl font-bold mb-2">Đăng ký thành công!</h2>
+        <p className="text-white/60 mb-2">Tài khoản bệnh nhân của bạn đã được tạo.</p>
+        <p className="text-blue-300 text-sm">Đang chuyển hướng đến trang đăng nhập...</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen flex" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0c4a6e 100%)" }}>
+      {/* Left panel */}
+      <div className="hidden lg:flex flex-1 items-center justify-center p-12">
+        <div className="text-white max-w-md">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center text-3xl">🏥</div>
+            <div>
+              <h1 className="text-3xl font-black tracking-tight">MedCare Pro</h1>
+              <p className="text-blue-300 text-sm">Hệ thống Quản lý Bệnh viện</p>
+            </div>
+          </div>
+          <p className="text-white/70 text-lg leading-relaxed mb-8">Tạo tài khoản bệnh nhân để đặt lịch khám, theo dõi hồ sơ sức khỏe và nhận thông báo từ bác sĩ.</p>
+          <div className="space-y-3">
+            {[["📅","Đặt lịch khám trực tuyến dễ dàng"],["📋","Xem hồ sơ bệnh án mọi lúc, mọi nơi"],["🔔","Nhận nhắc nhở lịch khám qua SMS/Email"],["💊","Tra cứu đơn thuốc và kết quả xét nghiệm"]].map(([icon,text]) => (
+              <div key={text} className="flex items-center gap-3 bg-white/5 backdrop-blur rounded-xl p-3 border border-white/10">
+                <span className="text-xl">{icon}</span><span className="text-sm text-white/80">{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right panel */}
+      <div className="flex-1 lg:max-w-lg flex items-center justify-center p-6 overflow-y-auto">
+        <div className="w-full max-w-md py-8">
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
+            {/* Header */}
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg">👤</div>
+              <h2 className="text-2xl font-bold text-white">Đăng ký tài khoản</h2>
+              <p className="text-white/50 text-sm mt-1">Dành cho bệnh nhân mới</p>
+            </div>
+
+            {/* Step indicator */}
+            <div className="flex items-center justify-center gap-2 mb-6">
+              {[1,2].map(s => (
+                <React.Fragment key={s}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step >= s ? "bg-blue-500 text-white" : "bg-white/10 text-white/40"}`}>{s}</div>
+                  {s < 2 && <div className={`h-0.5 w-12 transition-all ${step > s ? "bg-blue-500" : "bg-white/20"}`} />}
+                </React.Fragment>
+              ))}
+            </div>
+            <p className="text-center text-white/40 text-xs mb-6">{step === 1 ? "Bước 1: Thông tin cá nhân" : "Bước 2: Tạo tài khoản đăng nhập"}</p>
+
+            {/* Step 1 */}
+            {step === 1 && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-white/70 text-sm font-medium block mb-1.5">Họ và tên <span className="text-red-400">*</span></label>
+                  <input value={form.fullName} onChange={e => set("fullName", e.target.value)}
+                    className={inputCls("fullName")} placeholder="Nguyễn Văn A" />
+                  {errors.fullName && <p className="text-red-400 text-xs mt-1">{errors.fullName}</p>}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-white/70 text-sm font-medium block mb-1.5">Ngày sinh <span className="text-red-400">*</span></label>
+                    <input type="date" value={form.dob} onChange={e => set("dob", e.target.value)}
+                      className={inputCls("dob")} max={new Date().toISOString().split("T")[0]} />
+                    {errors.dob && <p className="text-red-400 text-xs mt-1">{errors.dob}</p>}
+                  </div>
+                  <div>
+                    <label className="text-white/70 text-sm font-medium block mb-1.5">Giới tính</label>
+                    <select value={form.gender} onChange={e => set("gender", e.target.value)}
+                      className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-400 transition-colors">
+                      {["Nam","Nữ","Khác"].map(g => <option key={g} value={g} className="text-gray-800">{g}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-white/70 text-sm font-medium block mb-1.5">Số điện thoại <span className="text-red-400">*</span></label>
+                  <input value={form.phone} onChange={e => set("phone", e.target.value)}
+                    className={inputCls("phone")} placeholder="0901234567" maxLength={10} />
+                  {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
+                </div>
+                <div>
+                  <label className="text-white/70 text-sm font-medium block mb-1.5">Email</label>
+                  <input type="email" value={form.email} onChange={e => set("email", e.target.value)}
+                    className={inputCls("email")} placeholder="example@email.com" />
+                  {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                </div>
+                <div>
+                  <label className="text-white/70 text-sm font-medium block mb-1.5">Địa chỉ <span className="text-red-400">*</span></label>
+                  <input value={form.address} onChange={e => set("address", e.target.value)}
+                    className={inputCls("address")} placeholder="Số nhà, Đường, Quận/Huyện, Tỉnh/TP" />
+                  {errors.address && <p className="text-red-400 text-xs mt-1">{errors.address}</p>}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-white/70 text-sm font-medium block mb-1.5">Nhóm máu</label>
+                    <select value={form.bloodType} onChange={e => set("bloodType", e.target.value)}
+                      className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-400 transition-colors">
+                      {bloodTypes.map(b => <option key={b} value={b} className="text-gray-800">{b}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-white/70 text-sm font-medium block mb-1.5">Dị ứng</label>
+                    <input value={form.allergies} onChange={e => set("allergies", e.target.value)}
+                      className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-blue-400 transition-colors"
+                      placeholder="Penicillin, Aspirin..." />
+                  </div>
+                </div>
+                <button onClick={handleNext} className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg mt-2">
+                  Tiếp theo →
+                </button>
+              </div>
+            )}
+
+            {/* Step 2 */}
+            {step === 2 && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-white/70 text-sm font-medium block mb-1.5">Tên đăng nhập <span className="text-red-400">*</span></label>
+                  <input value={form.username} onChange={e => set("username", e.target.value.toLowerCase().replace(/\s/g,""))}
+                    className={inputCls("username")} placeholder="Tối thiểu 4 ký tự" autoComplete="username" />
+                  {errors.username && <p className="text-red-400 text-xs mt-1">{errors.username}</p>}
+                </div>
+                <div>
+                  <label className="text-white/70 text-sm font-medium block mb-1.5">Mật khẩu <span className="text-red-400">*</span></label>
+                  <input type="password" value={form.password} onChange={e => set("password", e.target.value)}
+                    className={inputCls("password")} placeholder="Tối thiểu 6 ký tự" autoComplete="new-password" />
+                  {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+                  {form.password && (
+                    <div className="mt-1.5 flex gap-1">
+                      {[...Array(4)].map((_,i) => {
+                        const strength = form.password.length >= 10 && /[A-Z]/.test(form.password) && /\d/.test(form.password) ? 4 : form.password.length >= 8 && /\d/.test(form.password) ? 3 : form.password.length >= 6 ? 2 : 1;
+                        return <div key={i} className={`h-1 flex-1 rounded-full transition-all ${i < strength ? ["","bg-red-400","bg-yellow-400","bg-blue-400","bg-green-400"][strength] : "bg-white/10"}`} />;
+                      })}
+                      <span className="text-xs text-white/40 ml-1">{form.password.length >= 10 && /[A-Z]/.test(form.password) && /\d/.test(form.password) ? "Mạnh" : form.password.length >= 8 && /\d/.test(form.password) ? "Trung bình" : form.password.length >= 6 ? "Yếu" : "Rất yếu"}</span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="text-white/70 text-sm font-medium block mb-1.5">Xác nhận mật khẩu <span className="text-red-400">*</span></label>
+                  <input type="password" value={form.confirmPassword} onChange={e => set("confirmPassword", e.target.value)}
+                    className={inputCls("confirmPassword")} placeholder="Nhập lại mật khẩu" autoComplete="new-password" />
+                  {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
+                  {form.confirmPassword && form.password === form.confirmPassword && <p className="text-green-400 text-xs mt-1">✓ Mật khẩu khớp</p>}
+                </div>
+
+                {/* Summary */}
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10 space-y-1.5">
+                  <p className="text-white/50 text-xs font-semibold mb-2">📋 Thông tin đã nhập:</p>
+                  <p className="text-white/70 text-sm">👤 {form.fullName} ({form.gender}, {form.dob})</p>
+                  <p className="text-white/70 text-sm">📞 {form.phone}{form.email ? ` · ${form.email}` : ""}</p>
+                  <p className="text-white/70 text-sm">🩸 Nhóm máu: {form.bloodType}</p>
+                </div>
+
+                <div className="flex gap-3 mt-2">
+                  <button onClick={() => { setStep(1); setErrors({}); }} className="flex-1 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 rounded-xl transition-all">
+                    ← Quay lại
+                  </button>
+                  <button onClick={handleSubmit} disabled={loading} className="flex-2 flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg disabled:opacity-60">
+                    {loading ? "Đang tạo..." : "Tạo tài khoản ✓"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Back to login */}
+            <div className="mt-5 text-center">
+              <p className="text-white/40 text-sm">Đã có tài khoản?{" "}
+                <button onClick={onBack} className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Đăng nhập</button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LoginPage({ onLogin, onLog, onRegister }) {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -211,6 +466,11 @@ function LoginPage({ onLogin, onLog }) {
                   <span className="text-blue-400">{u}</span> / {p} — {r}
                 </button>
               ))}
+            </div>
+            <div className="mt-4 text-center">
+              <p className="text-white/40 text-sm">Bệnh nhân mới?{" "}
+                <button onClick={onRegister} className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">Đăng ký tài khoản</button>
+              </p>
             </div>
           </div>
         </div>
@@ -1122,13 +1382,22 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
   const [loginLogs, setLoginLogs] = useState([]);
+  const [showRegister, setShowRegister] = useState(false);
 
   const getDefaultTab = (u) => (NAV[u.role]?.[0]?.id) || "dashboard";
   const addLog = (entry) => setLoginLogs(prev => [...prev, entry]);
 
   const handleLogout = () => { setUser(null); setActiveTab("dashboard"); };
 
-  if (!user) return <LoginPage onLogin={(u) => { setUser(u); setActiveTab(getDefaultTab(u)); }} onLog={addLog} />;
+  if (!user) {
+    if (showRegister) return (
+      <RegisterPage
+        onBack={() => setShowRegister(false)}
+        onRegistered={(newUser) => { setShowRegister(false); setUser(newUser); setActiveTab(getDefaultTab(newUser)); }}
+      />
+    );
+    return <LoginPage onLogin={(u) => { setUser(u); setActiveTab(getDefaultTab(u)); }} onLog={addLog} onRegister={() => setShowRegister(true)} />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
