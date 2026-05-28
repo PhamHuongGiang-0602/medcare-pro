@@ -39,11 +39,12 @@ const MOCK_INVOICES = [
 ];
 
 const MOCK_NOTIFICATIONS = [
-  { id: 1, type: "reminder", title: "Nhắc lịch khám", message: "Bệnh nhân Hoàng Thị Mai có lịch khám lúc 09:00 hôm nay", time: "07:00", read: false, channel: "SMS" },
-  { id: 2, type: "result", title: "Kết quả xét nghiệm", message: "Kết quả xét nghiệm của BN Trần Quốc Bảo đã có", time: "08:30", read: false, channel: "Email" },
-  { id: 3, type: "reminder", title: "Nhắc lịch khám", message: "Bệnh nhân Nguyễn Văn Hùng có lịch khám lúc 10:00 hôm nay", time: "08:00", read: true, channel: "SMS" },
-  { id: 4, type: "system", title: "Hệ thống", message: "Sao lưu dữ liệu tự động hoàn tất lúc 02:00", time: "02:00", read: true, channel: "System" },
-  { id: 5, type: "payment", title: "Thanh toán", message: "Hóa đơn HD002 đã được thanh toán thành công", time: "Hôm qua", read: true, channel: "Email" },
+  { id: 1, type: "reminder", title: "Nhắc lịch khám", message: "Bệnh nhân Hoàng Thị Mai có lịch khám lúc 09:00 hôm nay", time: "07:00", read: false, channel: "SMS", patientId: "BN001" },
+  { id: 2, type: "result", title: "Kết quả xét nghiệm", message: "Kết quả xét nghiệm của BN Trần Quốc Bảo đã có", time: "08:30", read: false, channel: "Email", patientId: "BN004" },
+  { id: 3, type: "reminder", title: "Nhắc lịch khám", message: "Bệnh nhân Nguyễn Văn Hùng có lịch khám lúc 10:00 hôm nay", time: "08:00", read: true, channel: "SMS", patientId: "BN002" },
+  { id: 4, type: "system", title: "Hệ thống", message: "Sao lưu dữ liệu tự động hoàn tất lúc 02:00", time: "02:00", read: true, channel: "System", patientId: null },
+  { id: 5, type: "payment", title: "Thanh toán", message: "Hóa đơn HD002 đã được thanh toán thành công", time: "Hôm qua", read: true, channel: "Email", patientId: "BN001" },
+  { id: 6, type: "result", title: "Kết quả xét nghiệm", message: "Kết quả xét nghiệm của BN Hoàng Thị Mai đã có", time: "09:15", read: false, channel: "Email", patientId: "BN001" },
 ];
 
 const REVENUE_DATA = [
@@ -663,8 +664,23 @@ function Payments({ user }) {
 // ============================================================
 // NOTIFICATIONS
 // ============================================================
-function Notifications() {
-  const [notifs, setNotifs] = useState(MOCK_NOTIFICATIONS);
+function Notifications({ user }) {
+  // Lấy patientId của user hiện tại (nếu là bệnh nhân)
+  const currentPatient = user.role === "patient"
+    ? MOCK_PATIENTS.find(p => p.name === user.name)
+    : null;
+
+  // Lọc thông báo theo role:
+  // - patient: chỉ thấy thông báo có patientId khớp với mình
+  // - admin/receptionist/doctor: thấy tất cả
+  const visibleNotifs = MOCK_NOTIFICATIONS.filter(n => {
+    if (user.role === "patient") {
+      return currentPatient && n.patientId === currentPatient.id;
+    }
+    return true;
+  });
+
+  const [notifs, setNotifs] = useState(visibleNotifs);
   const [filter, setFilter] = useState("all");
   const markRead = (id) => setNotifs(notifs.map(n => n.id === id ? {...n, read: true} : n));
   const markAll = () => setNotifs(notifs.map(n => ({...n, read: true})));
@@ -890,6 +906,17 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
 
+  const currentPatient = user.role === "patient"
+    ? MOCK_PATIENTS.find(p => p.name === user.name)
+    : null;
+  const unreadCount = MOCK_NOTIFICATIONS.filter(n => {
+    if (!n.read) {
+      if (user.role === "patient") return currentPatient && n.patientId === currentPatient.id;
+      return true;
+    }
+    return false;
+  }).length;
+
   const handleLogout = () => { setUser(null); setActiveTab("dashboard"); };
 
   if (!user) return <LoginPage onLogin={(u) => { setUser(u); setActiveTab("dashboard"); }} />;
@@ -900,7 +927,7 @@ export default function App() {
       case "appointments": return <Appointments user={user} />;
       case "records": return <MedicalRecords user={user} />;
       case "payments": return <Payments user={user} />;
-      case "notifications": return <Notifications />;
+      case "notifications": return <Notifications user={user} />;
       case "reports": return <Reports />;
       case "settings": return <Settings />;
       default: return <Dashboard user={user} onNav={setActiveTab} />;
@@ -921,7 +948,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <button onClick={() => setActiveTab("notifications")} className="relative w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
               <span>🔔</span>
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[9px] font-bold flex items-center justify-center">2</span>
+              {unreadCount > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[9px] font-bold flex items-center justify-center">{unreadCount}</span>}
             </button>
             <div className="flex items-center gap-2 cursor-pointer" onClick={handleLogout}>
               <Avatar initials={user.name.charAt(0)} color="#0ea5e9" size="sm" />
