@@ -39,12 +39,28 @@ const MOCK_INVOICES = [
 ];
 
 const MOCK_NOTIFICATIONS = [
-  { id: 1, type: "reminder", title: "Nhắc lịch khám", message: "Bệnh nhân Hoàng Thị Mai có lịch khám lúc 09:00 hôm nay", time: "07:00", read: false, channel: "SMS", patientId: "BN001" },
-  { id: 2, type: "result", title: "Kết quả xét nghiệm", message: "Kết quả xét nghiệm của BN Trần Quốc Bảo đã có", time: "08:30", read: false, channel: "Email", patientId: "BN004" },
-  { id: 3, type: "reminder", title: "Nhắc lịch khám", message: "Bệnh nhân Nguyễn Văn Hùng có lịch khám lúc 10:00 hôm nay", time: "08:00", read: true, channel: "SMS", patientId: "BN002" },
-  { id: 4, type: "system", title: "Hệ thống", message: "Sao lưu dữ liệu tự động hoàn tất lúc 02:00", time: "02:00", read: true, channel: "System", patientId: null },
-  { id: 5, type: "payment", title: "Thanh toán", message: "Hóa đơn HD002 đã được thanh toán thành công", time: "Hôm qua", read: true, channel: "Email", patientId: "BN001" },
-  { id: 6, type: "result", title: "Kết quả xét nghiệm", message: "Kết quả xét nghiệm của BN Hoàng Thị Mai đã có", time: "09:15", read: false, channel: "Email", patientId: "BN001" },
+  // Bệnh nhân BN001
+  { id: 1,  type: "reminder", title: "Nhắc lịch khám",        message: "Bạn có lịch khám lúc 09:00 hôm nay với BS. Nguyễn Văn An",                 time: "07:00",   read: false, channel: "SMS",    forRoles: ["patient"], patientId: "BN001" },
+  { id: 5,  type: "payment",  title: "Thanh toán thành công", message: "Hóa đơn HD002 của bạn đã được thanh toán thành công",                       time: "Hôm qua", read: true,  channel: "Email",  forRoles: ["patient"], patientId: "BN001" },
+  { id: 6,  type: "result",   title: "Kết quả xét nghiệm",   message: "Kết quả xét nghiệm của bạn đã có, vui lòng liên hệ bác sĩ",                 time: "09:15",   read: false, channel: "Email",  forRoles: ["patient"], patientId: "BN001" },
+  // Bệnh nhân BN002
+  { id: 3,  type: "reminder", title: "Nhắc lịch khám",        message: "Bạn có lịch khám lúc 10:00 hôm nay với BS. Trần Thị Bình",                 time: "08:00",   read: true,  channel: "SMS",    forRoles: ["patient"], patientId: "BN002" },
+  // Bệnh nhân BN004
+  { id: 2,  type: "result",   title: "Kết quả xét nghiệm",   message: "Kết quả xét nghiệm của bạn đã có, vui lòng liên hệ bác sĩ",                 time: "08:30",   read: false, channel: "Email",  forRoles: ["patient"], patientId: "BN004" },
+  // Bác sĩ
+  { id: 7,  type: "reminder", title: "Lịch khám hôm nay",     message: "Bạn có 2 bệnh nhân: 09:00 Hoàng Thị Mai, 10:00 Nguyễn Văn Hùng",          time: "07:30",   read: false, channel: "System", forRoles: ["doctor"], patientId: null },
+  { id: 8,  type: "result",   title: "Kết quả xét nghiệm",   message: "Kết quả xét nghiệm BN Trần Quốc Bảo (BN004) đã có",                        time: "08:30",   read: false, channel: "Email",  forRoles: ["doctor"], patientId: null },
+  // Lễ tân: chỉ thanh toán
+  { id: 9,  type: "payment",  title: "Thanh toán thành công", message: "Hóa đơn HD001 — Trần Quốc Bảo — 500.000đ đã thanh toán",                   time: "08:10",   read: false, channel: "System", forRoles: ["receptionist"], patientId: null },
+  { id: 10, type: "payment",  title: "Thanh toán thành công", message: "Hóa đơn HD002 — Hoàng Thị Mai — 350.000đ đã thanh toán",                   time: "Hôm qua", read: true,  channel: "System", forRoles: ["receptionist"], patientId: null },
+  // Admin: bảo mật, hệ thống, nhật ký đăng nhập
+  { id: 11, type: "system",   title: "Sao lưu hệ thống",      message: "Sao lưu dữ liệu tự động hoàn tất lúc 02:00",                               time: "02:00",   read: true,  channel: "System", forRoles: ["admin"], patientId: null },
+  { id: 12, type: "security", title: "Cảnh báo bảo mật",      message: "Phát hiện 3 lần đăng nhập sai liên tiếp từ IP 203.113.xx.xx",              time: "06:45",   read: false, channel: "System", forRoles: ["admin"], patientId: null },
+  { id: 13, type: "login",    title: "Nhật ký đăng nhập",     message: "Tài khoản 'doctor' đăng nhập lúc 07:28 từ IP 192.168.1.5",                time: "07:28",   read: false, channel: "System", forRoles: ["admin"], patientId: null },
+  { id: 14, type: "login",    title: "Nhật ký đăng nhập",     message: "Tài khoản 'reception' đăng nhập lúc 07:55 từ IP 192.168.1.8",             time: "07:55",   read: true,  channel: "System", forRoles: ["admin"], patientId: null },
+  // Ban giám đốc: báo cáo thống kê
+  { id: 15, type: "report",   title: "Báo cáo tháng 5",       message: "Báo cáo doanh thu tháng 5/2026 đã sẵn sàng: 55 triệu VNĐ",                time: "08:00",   read: false, channel: "Email",  forRoles: ["director"], patientId: null },
+  { id: 16, type: "report",   title: "Thống kê bệnh nhân",    message: "Tháng này có 145 bệnh nhân, tăng 12% so với tháng trước",                  time: "08:05",   read: false, channel: "Email",  forRoles: ["director"], patientId: null },
 ];
 
 const REVENUE_DATA = [
@@ -271,7 +287,7 @@ function Sidebar({ user, activeTab, onNav, collapsed, onToggle }) {
 // DASHBOARD
 // ============================================================
 function Dashboard({ user, onNav }) {
-  const unread = MOCK_NOTIFICATIONS.filter(n => !n.read).length;
+  const unread = MOCK_NOTIFICATIONS.filter(n => !n.read && n.forRoles.includes(user.role)).length;
   return (
     <div className="space-y-6">
       <div>
@@ -670,13 +686,11 @@ function Notifications({ user }) {
     ? MOCK_PATIENTS.find(p => p.name === user.name)
     : null;
 
-  // Lọc thông báo theo role:
-  // - patient: chỉ thấy thông báo có patientId khớp với mình
-  // - admin/receptionist/doctor: thấy tất cả
+  // Lọc thông báo theo forRoles: mỗi thông báo chỉ hiện cho role phù hợp
+  // Bệnh nhân còn lọc thêm theo patientId
   const visibleNotifs = MOCK_NOTIFICATIONS.filter(n => {
-    if (user.role === "patient") {
-      return currentPatient && n.patientId === currentPatient.id;
-    }
+    if (!n.forRoles.includes(user.role)) return false;
+    if (user.role === "patient") return currentPatient && n.patientId === currentPatient.id;
     return true;
   });
 
@@ -686,8 +700,8 @@ function Notifications({ user }) {
   const markAll = () => setNotifs(notifs.map(n => ({...n, read: true})));
 
   const filtered = filter === "unread" ? notifs.filter(n => !n.read) : notifs;
-  const typeIcon = { reminder: "📅", result: "🧪", system: "⚙️", payment: "💳" };
-  const typeColor = { reminder: "bg-blue-100 text-blue-600", result: "bg-green-100 text-green-600", system: "bg-gray-100 text-gray-600", payment: "bg-yellow-100 text-yellow-600" };
+  const typeIcon = { reminder: "📅", result: "🧪", system: "⚙️", payment: "💳", security: "🔒", login: "🔑", report: "📊" };
+  const typeColor = { reminder: "bg-blue-100 text-blue-600", result: "bg-green-100 text-green-600", system: "bg-gray-100 text-gray-600", payment: "bg-yellow-100 text-yellow-600", security: "bg-red-100 text-red-600", login: "bg-purple-100 text-purple-600", report: "bg-indigo-100 text-indigo-600" };
 
   return (
     <div className="space-y-5">
@@ -910,7 +924,7 @@ export default function App() {
     ? MOCK_PATIENTS.find(p => p.name === user.name)
     : null;
   const unreadCount = MOCK_NOTIFICATIONS.filter(n => {
-    if (!n.read) {
+    if (!n.read && n.forRoles.includes(user.role)) {
       if (user.role === "patient") return currentPatient && n.patientId === currentPatient.id;
       return true;
     }
