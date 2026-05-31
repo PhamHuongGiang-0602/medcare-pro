@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 // ============================================================
@@ -39,28 +39,11 @@ const MOCK_INVOICES = [
 ];
 
 const MOCK_NOTIFICATIONS = [
-  // Bệnh nhân BN001
-  { id: 1,  type: "reminder", title: "Nhắc lịch khám",        message: "Bạn có lịch khám lúc 09:00 hôm nay với BS. Nguyễn Văn An",                 time: "07:00",   read: false, channel: "SMS",    forRoles: ["patient"], patientId: "BN001" },
-  { id: 5,  type: "payment",  title: "Thanh toán thành công", message: "Hóa đơn HD002 của bạn đã được thanh toán thành công",                       time: "Hôm qua", read: true,  channel: "Email",  forRoles: ["patient"], patientId: "BN001" },
-  { id: 6,  type: "result",   title: "Kết quả xét nghiệm",   message: "Kết quả xét nghiệm của bạn đã có, vui lòng liên hệ bác sĩ",                 time: "09:15",   read: false, channel: "Email",  forRoles: ["patient"], patientId: "BN001" },
-  // Bệnh nhân BN002
-  { id: 3,  type: "reminder", title: "Nhắc lịch khám",        message: "Bạn có lịch khám lúc 10:00 hôm nay với BS. Trần Thị Bình",                 time: "08:00",   read: true,  channel: "SMS",    forRoles: ["patient"], patientId: "BN002" },
-  // Bệnh nhân BN004
-  { id: 2,  type: "result",   title: "Kết quả xét nghiệm",   message: "Kết quả xét nghiệm của bạn đã có, vui lòng liên hệ bác sĩ",                 time: "08:30",   read: false, channel: "Email",  forRoles: ["patient"], patientId: "BN004" },
-  // Bác sĩ
-  { id: 7,  type: "reminder", title: "Lịch khám hôm nay",     message: "Bạn có 2 bệnh nhân: 09:00 Hoàng Thị Mai, 10:00 Nguyễn Văn Hùng",          time: "07:30",   read: false, channel: "System", forRoles: ["doctor"], patientId: null },
-  { id: 8,  type: "result",   title: "Kết quả xét nghiệm",   message: "Kết quả xét nghiệm BN Trần Quốc Bảo (BN004) đã có",                        time: "08:30",   read: false, channel: "Email",  forRoles: ["doctor"], patientId: null },
-  // Lễ tân: chỉ thanh toán
-  { id: 9,  type: "payment",  title: "Thanh toán thành công", message: "Hóa đơn HD001 — Trần Quốc Bảo — 500.000đ đã thanh toán",                   time: "08:10",   read: false, channel: "System", forRoles: ["receptionist"], patientId: null },
-  { id: 10, type: "payment",  title: "Thanh toán thành công", message: "Hóa đơn HD002 — Hoàng Thị Mai — 350.000đ đã thanh toán",                   time: "Hôm qua", read: true,  channel: "System", forRoles: ["receptionist"], patientId: null },
-  // Admin: bảo mật, hệ thống, nhật ký đăng nhập
-  { id: 11, type: "system",   title: "Sao lưu hệ thống",      message: "Sao lưu dữ liệu tự động hoàn tất lúc 02:00",                               time: "02:00",   read: true,  channel: "System", forRoles: ["admin"], patientId: null },
-  { id: 12, type: "security", title: "Cảnh báo bảo mật",      message: "Phát hiện 3 lần đăng nhập sai liên tiếp từ IP 203.113.xx.xx",              time: "06:45",   read: false, channel: "System", forRoles: ["admin"], patientId: null },
-  { id: 13, type: "login",    title: "Nhật ký đăng nhập",     message: "Tài khoản 'doctor' đăng nhập lúc 07:28 từ IP 192.168.1.5",                time: "07:28",   read: false, channel: "System", forRoles: ["admin"], patientId: null },
-  { id: 14, type: "login",    title: "Nhật ký đăng nhập",     message: "Tài khoản 'reception' đăng nhập lúc 07:55 từ IP 192.168.1.8",             time: "07:55",   read: true,  channel: "System", forRoles: ["admin"], patientId: null },
-  // Ban giám đốc: báo cáo thống kê
-  { id: 15, type: "report",   title: "Báo cáo tháng 5",       message: "Báo cáo doanh thu tháng 5/2026 đã sẵn sàng: 55 triệu VNĐ",                time: "08:00",   read: false, channel: "Email",  forRoles: ["director"], patientId: null },
-  { id: 16, type: "report",   title: "Thống kê bệnh nhân",    message: "Tháng này có 145 bệnh nhân, tăng 12% so với tháng trước",                  time: "08:05",   read: false, channel: "Email",  forRoles: ["director"], patientId: null },
+  { id: 1, type: "reminder", title: "Nhắc lịch khám", message: "Bệnh nhân Hoàng Thị Mai có lịch khám lúc 09:00 hôm nay", time: "07:00", read: false, channel: "SMS" },
+  { id: 2, type: "result", title: "Kết quả xét nghiệm", message: "Kết quả xét nghiệm của BN Trần Quốc Bảo đã có", time: "08:30", read: false, channel: "Email" },
+  { id: 3, type: "reminder", title: "Nhắc lịch khám", message: "Bệnh nhân Nguyễn Văn Hùng có lịch khám lúc 10:00 hôm nay", time: "08:00", read: true, channel: "SMS" },
+  { id: 4, type: "system", title: "Hệ thống", message: "Sao lưu dữ liệu tự động hoàn tất lúc 02:00", time: "02:00", read: true, channel: "System" },
+  { id: 5, type: "payment", title: "Thanh toán", message: "Hóa đơn HD002 đã được thanh toán thành công", time: "Hôm qua", read: true, channel: "Email" },
 ];
 
 const REVENUE_DATA = [
@@ -73,11 +56,20 @@ const SPECIALTY_DATA = [
   { name: "Ngoại tổng quát", value: 20, color: "#f59e0b" }, { name: "Da liễu", value: 17, color: "#8b5cf6" },
 ];
 
+// Phân quyền theo bảng:
+// Ban Giám đốc (director):  Báo cáo thống kê, Thông báo (của bản thân)
+// Ban Quản lý (manager):    Báo cáo thống kê, Thông báo (của bản thân)
+// Bác sĩ (doctor):          Xem lịch khám, Thanh toán, Xem hồ sơ bệnh án, Thông báo (của bản thân)
+// Lễ tân (receptionist):    Xem lịch khám, Thanh toán, Thông báo (của bản thân)
+// Quản trị viên (system_admin): Quản trị hệ thống, Thông báo (của bản thân)
+// Bệnh nhân (patient):      Xem lịch (bản thân), Đặt lịch, Hóa đơn, HSBA (bản thân), Thông báo (bản thân)
 const USERS = [
-  { username: "admin", password: "admin123", role: "admin", name: "Quản trị viên" },
-  { username: "doctor", password: "doctor123", role: "doctor", name: "BS. Nguyễn Văn An" },
-  { username: "patient", password: "patient123", role: "patient", name: "Hoàng Thị Mai" },
+  { username: "director",  password: "director123",  role: "director",     name: "Giám đốc Trần Văn Bình" },
+  { username: "manager",   password: "manager123",   role: "manager",      name: "Quản lý Lê Thị Hương" },
+  { username: "doctor",    password: "doctor123",    role: "doctor",       name: "BS. Nguyễn Văn An" },
+  { username: "patient",   password: "patient123",   role: "patient",      name: "Hoàng Thị Mai",  patientId: "BN001" },
   { username: "reception", password: "reception123", role: "receptionist", name: "Lễ tân Minh Châu" },
+  { username: "admin",     password: "admin123",     role: "system_admin", name: "Quản trị viên Hệ thống" },
 ];
 
 // ============================================================
@@ -136,7 +128,7 @@ const Modal = ({ open, onClose, title, children, size = "md" }) => {
 // ============================================================
 // LOGIN PAGE
 // ============================================================
-function LoginPage({ onLogin }) {
+function LoginPage({ onLogin, onLog }) {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -146,6 +138,17 @@ function LoginPage({ onLogin }) {
     setError("");
     setTimeout(() => {
       const user = USERS.find(u => u.username === form.username && u.password === form.password);
+      const now = new Date();
+      const entry = {
+        id: Date.now(),
+        time: now.toLocaleString("vi-VN"),
+        username: form.username || "(trống)",
+        role: user ? ({director:"Ban Giám đốc", manager:"Ban Quản lý", doctor:"Bác sĩ", receptionist:"Lễ tân", system_admin:"Quản trị viên", patient:"Bệnh nhân"}[user.role] || user.role) : "—",
+        name: user ? user.name : "—",
+        status: user ? "success" : "fail",
+        ip: "192.168.1.x",
+      };
+      if (onLog) onLog(entry);
       if (user) onLogin(user);
       else setError("Tên đăng nhập hoặc mật khẩu không đúng");
       setLoading(false);
@@ -202,7 +205,7 @@ function LoginPage({ onLogin }) {
             </div>
             <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-white/50 text-xs font-semibold mb-2">Tài khoản demo:</p>
-              {[["admin","admin123","Quản trị viên"],["doctor","doctor123","Bác sĩ"],["patient","patient123","Bệnh nhân"],["reception","reception123","Lễ tân"]].map(([u,p,r]) => (
+              {[["director","director123","Ban Giám đốc"],["admin","admin123","Quản trị viên"],["doctor","doctor123","Bác sĩ"],["reception","reception123","Lễ tân"],["patient","patient123","Bệnh nhân"]].map(([u,p,r]) => (
                 <button key={u} onClick={() => { setForm({username:u,password:p}); }}
                   className="w-full text-left text-xs text-white/40 hover:text-white/70 py-0.5 transition-colors">
                   <span className="text-blue-400">{u}</span> / {p} — {r}
@@ -219,33 +222,42 @@ function LoginPage({ onLogin }) {
 // ============================================================
 // SIDEBAR
 // ============================================================
+// NAV theo bảng phân quyền:
+// Ban Giám đốc: Báo cáo thống kê + Thông báo (của bản thân)
+// Ban Quản lý:  Báo cáo thống kê + Thông báo (của bản thân)
+// Bác sĩ: Xem lịch khám + Thanh toán (xử lý) + Xem HSBA + Thông báo
+// Lễ tân: Xem lịch khám + Thanh toán (xử lý) + Thông báo
+// Quản trị viên: Quản trị hệ thống + Thông báo
+// Bệnh nhân: Đặt lịch + Xem lịch bản thân + HSBA bản thân + Hóa đơn + Thông báo
 const NAV = {
-  admin: [
-    { id: "dashboard", icon: "📊", label: "Dashboard" },
-    { id: "appointments", icon: "📅", label: "Lịch khám" },
-    { id: "records", icon: "📋", label: "Hồ sơ bệnh án" },
-    { id: "payments", icon: "💳", label: "Thanh toán" },
+  director: [
+    { id: "reports",       icon: "📈", label: "Báo cáo thống kê" },
     { id: "notifications", icon: "🔔", label: "Thông báo" },
-    { id: "reports", icon: "📈", label: "Báo cáo" },
-    { id: "settings", icon: "⚙️", label: "Quản trị" },
+  ],
+  manager: [
+    { id: "reports",       icon: "📈", label: "Báo cáo thống kê" },
+    { id: "notifications", icon: "🔔", label: "Thông báo" },
   ],
   doctor: [
-    { id: "dashboard", icon: "📊", label: "Tổng quan" },
-    { id: "appointments", icon: "📅", label: "Lịch khám của tôi" },
-    { id: "records", icon: "📋", label: "Hồ sơ bệnh án" },
-    { id: "notifications", icon: "🔔", label: "Thông báo" },
-  ],
-  patient: [
-    { id: "dashboard", icon: "🏠", label: "Trang chủ" },
-    { id: "appointments", icon: "📅", label: "Đặt lịch khám" },
-    { id: "records", icon: "📋", label: "Hồ sơ của tôi" },
-    { id: "payments", icon: "💳", label: "Hóa đơn" },
+    { id: "appointments",  icon: "📅", label: "Lịch khám" },
+    { id: "records",       icon: "📋", label: "Hồ sơ bệnh án" },
+    { id: "payments",      icon: "💳", label: "Thanh toán" },
     { id: "notifications", icon: "🔔", label: "Thông báo" },
   ],
   receptionist: [
-    { id: "dashboard", icon: "📊", label: "Tổng quan" },
-    { id: "appointments", icon: "📅", label: "Quản lý lịch khám" },
-    { id: "payments", icon: "💳", label: "Thanh toán" },
+    { id: "appointments",  icon: "📅", label: "Quản lý lịch khám" },
+    { id: "payments",      icon: "💳", label: "Thanh toán" },
+    { id: "notifications", icon: "🔔", label: "Thông báo" },
+  ],
+  system_admin: [
+    { id: "settings",      icon: "⚙️", label: "Quản trị hệ thống" },
+    { id: "notifications", icon: "🔔", label: "Thông báo" },
+  ],
+  patient: [
+    { id: "dashboard",     icon: "🏠", label: "Tổng quan" },
+    { id: "appointments",  icon: "📅", label: "Đặt lịch khám" },
+    { id: "records",       icon: "📋", label: "Hồ sơ của tôi" },
+    { id: "payments",      icon: "💳", label: "Hóa đơn" },
     { id: "notifications", icon: "🔔", label: "Thông báo" },
   ],
 };
@@ -272,7 +284,7 @@ function Sidebar({ user, activeTab, onNav, collapsed, onToggle }) {
         {!collapsed && (
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 mb-2">
             <Avatar initials={user.name.charAt(0)} color="#3b82f6" size="sm" />
-            <div className="overflow-hidden"><p className="text-white text-xs font-semibold truncate">{user.name}</p><p className="text-gray-500 text-xs capitalize">{user.role}</p></div>
+            <div className="overflow-hidden"><p className="text-white text-xs font-semibold truncate">{user.name}</p><p className="text-gray-500 text-xs">{{"director":"Ban Giám đốc","manager":"Ban Quản lý","doctor":"Bác sĩ","receptionist":"Lễ tân","system_admin":"Quản trị viên","patient":"Bệnh nhân"}[user.role] || user.role}</p></div>
           </div>
         )}
         <button onClick={onToggle} className="w-full flex items-center justify-center p-2 text-gray-500 hover:text-white transition-colors rounded-xl hover:bg-white/5 text-sm">
@@ -284,10 +296,220 @@ function Sidebar({ user, activeTab, onNav, collapsed, onToggle }) {
 }
 
 // ============================================================
-// DASHBOARD
+// PATIENT DASHBOARD — Riêng cho role bệnh nhân
+// ============================================================
+function PatientDashboard({ user, onNav }) {
+  const patient = MOCK_PATIENTS.find(p => p.id === user.patientId);
+  const myApts  = MOCK_APPOINTMENTS.filter(a => a.patientId === user.patientId);
+  const myRecs  = MOCK_RECORDS.filter(r => r.patientId === user.patientId);
+  const myInvs  = MOCK_INVOICES.filter(i => i.patientId === user.patientId);
+  const upcoming = myApts.filter(a => ["pending","confirmed","waiting"].includes(a.status))
+                         .sort((a,b) => a.date.localeCompare(b.date));
+  const nextApt  = upcoming[0] || null;
+  const unpaid   = myInvs.filter(i => i.status === "pending");
+  const unread   = MOCK_NOTIFICATIONS.filter(n => !n.read).length;
+
+  const statusColor = { confirmed:"from-blue-500 to-blue-600", pending:"from-yellow-500 to-orange-500", waiting:"from-green-500 to-emerald-600", completed:"from-gray-400 to-gray-500" };
+  const today = new Date().toLocaleDateString("vi-VN", { weekday:"long", day:"2-digit", month:"2-digit", year:"numeric" });
+
+  return (
+    <div className="space-y-6">
+      {/* Hero greeting */}
+      <div className="rounded-3xl overflow-hidden relative" style={{ background: "linear-gradient(135deg, #1e40af 0%, #0ea5e9 60%, #06b6d4 100%)" }}>
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 80% 50%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+        <div className="relative p-6 flex items-center justify-between gap-4 flex-wrap">
+          <div className="text-white">
+            <p className="text-blue-200 text-sm font-medium mb-1">{today}</p>
+            <h2 className="text-2xl font-black mb-1">Xin chào, {user.name} 👋</h2>
+            <p className="text-blue-100 text-sm">
+              {nextApt
+                ? `Lịch khám tiếp theo: ${nextApt.date} lúc ${nextApt.time} — ${nextApt.doctorName}`
+                : "Bạn chưa có lịch khám nào sắp tới"}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {patient && (
+              <div className="bg-white/15 backdrop-blur rounded-2xl px-4 py-3 text-white text-center border border-white/20">
+                <p className="text-2xl font-black">🩸 {patient.bloodType}</p>
+                <p className="text-xs text-blue-200 mt-0.5">Nhóm máu</p>
+              </div>
+            )}
+            <button
+              onClick={() => onNav("appointments")}
+              className="bg-white text-blue-600 font-bold px-5 py-3 rounded-2xl text-sm hover:bg-blue-50 transition-colors shadow-lg whitespace-nowrap"
+            >
+              📅 Đặt lịch mới
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard icon="📅" label="Lịch sắp tới"     value={upcoming.length}  sub="lịch hẹn đang chờ"       color="bg-blue-50 text-blue-500" />
+        <StatCard icon="📋" label="Hồ sơ khám"        value={myRecs.length}    sub="lượt khám đã lưu"        color="bg-green-50 text-green-500" />
+        <StatCard icon="💳" label="Hóa đơn chờ TT"   value={unpaid.length}    sub={unpaid.length > 0 ? `${unpaid.reduce((s,i)=>s+i.total,0).toLocaleString("vi-VN")}đ` : "Tất cả đã thanh toán"} color="bg-yellow-50 text-yellow-600" />
+        <StatCard icon="🔔" label="Thông báo mới"     value={unread}           sub="chưa đọc"                color="bg-purple-50 text-purple-500" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Lịch khám sắp tới */}
+        <div className="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-gray-700">Lịch khám sắp tới</h3>
+            <button onClick={() => onNav("appointments")} className="text-blue-500 text-sm font-medium hover:underline">Xem tất cả →</button>
+          </div>
+          {upcoming.length === 0 ? (
+            <div className="text-center py-10 text-gray-400">
+              <span className="text-5xl block mb-3">📭</span>
+              <p className="font-medium mb-3">Bạn chưa có lịch khám nào sắp tới</p>
+              <button onClick={() => onNav("appointments")} className="bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors">Đặt lịch ngay</button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {upcoming.slice(0, 4).map((apt, idx) => {
+                const gradCls = statusColor[apt.status] || "from-gray-400 to-gray-500";
+                return (
+                  <div key={apt.id} className={`flex items-center gap-4 p-4 rounded-2xl border transition-all hover:shadow-md ${idx === 0 ? "border-blue-200 bg-blue-50/50" : "border-gray-100 bg-gray-50/50"}`}>
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradCls} flex flex-col items-center justify-center text-white flex-shrink-0 shadow-sm`}>
+                      <span className="text-xs font-bold leading-tight">{apt.time}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-gray-800 text-sm">{apt.type}</p>
+                      <p className="text-gray-500 text-xs mt-0.5">{apt.doctorName} • {apt.specialty}</p>
+                      <p className="text-gray-400 text-xs">{apt.date}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <Badge status={apt.status} />
+                      {idx === 0 && <span className="text-[10px] text-blue-500 font-semibold bg-blue-100 px-2 py-0.5 rounded-full">Tiếp theo</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Thông tin cá nhân + Dị ứng */}
+        <div className="space-y-4">
+          {patient && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+              <h3 className="font-bold text-gray-700 mb-4">Thông tin sức khỏe</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-2xl font-black text-white shadow-sm">
+                  {patient.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800">{patient.name}</p>
+                  <p className="text-gray-400 text-xs">{patient.id} • {patient.gender}</p>
+                </div>
+              </div>
+              <div className="space-y-2.5 text-sm">
+                {[
+                  ["🎂","Tuổi", `${new Date().getFullYear() - new Date(patient.dob).getFullYear()} tuổi (${patient.dob})`],
+                  ["🩸","Nhóm máu", patient.bloodType],
+                  ["📞","Điện thoại", patient.phone],
+                  ["📍","Địa chỉ", patient.address],
+                ].map(([icon, label, val]) => (
+                  <div key={label} className="flex items-start gap-2">
+                    <span className="flex-shrink-0">{icon}</span>
+                    <div><span className="text-gray-400">{label}:</span> <span className="font-semibold text-gray-700">{val}</span></div>
+                  </div>
+                ))}
+              </div>
+              {patient.allergies && patient.allergies !== "Không" && (
+                <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-3">
+                  <p className="text-red-700 text-xs font-bold">⚠️ Dị ứng thuốc</p>
+                  <p className="text-red-600 text-sm font-semibold mt-0.5">{patient.allergies}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Hồ sơ gần nhất */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-gray-700">Lần khám gần nhất</h3>
+              <button onClick={() => onNav("records")} className="text-blue-500 text-xs font-medium hover:underline">Xem hồ sơ →</button>
+            </div>
+            {myRecs.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-4">Chưa có hồ sơ khám</p>
+            ) : (() => {
+              const last = myRecs[myRecs.length - 1];
+              return (
+                <div className="space-y-2 text-sm">
+                  <p className="text-gray-500 text-xs">{last.date} — {last.doctor}</p>
+                  <p className="font-bold text-red-600">{last.diagnosis}</p>
+                  <p className="text-gray-600 text-xs">{last.symptoms}</p>
+                  {last.prescription.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {last.prescription.slice(0,2).map((p,i) => (
+                        <div key={i} className="flex items-center gap-1.5 bg-blue-50 px-2.5 py-1.5 rounded-lg text-xs">
+                          <span>💊</span>
+                          <span className="font-semibold text-blue-800">{p.drug}</span>
+                          <span className="text-gray-500">• {p.dosage}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      </div>
+
+      {/* Hóa đơn chưa thanh toán */}
+      {unpaid.length > 0 && (
+        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-gray-700">⚠️ Hóa đơn chờ thanh toán</h3>
+            <button onClick={() => onNav("payments")} className="text-orange-600 text-sm font-semibold hover:underline">Thanh toán ngay →</button>
+          </div>
+          <div className="space-y-2">
+            {unpaid.map(inv => (
+              <div key={inv.id} className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-yellow-100">
+                <div>
+                  <p className="font-semibold text-gray-800 text-sm">{inv.services.map(s=>s.name).join(", ")}</p>
+                  <p className="text-gray-400 text-xs">{inv.id} • {inv.date}</p>
+                </div>
+                <span className="font-black text-orange-600 text-base">{inv.total.toLocaleString("vi-VN")}đ</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Shortcuts */}
+      <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <h3 className="font-bold text-gray-700 mb-4">Truy cập nhanh</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { icon:"📅", label:"Đặt lịch khám", tab:"appointments", color:"bg-blue-50 text-blue-600 hover:bg-blue-100" },
+            { icon:"📋", label:"Hồ sơ của tôi",  tab:"records",      color:"bg-green-50 text-green-600 hover:bg-green-100" },
+            { icon:"💳", label:"Hóa đơn",         tab:"payments",     color:"bg-purple-50 text-purple-600 hover:bg-purple-100" },
+            { icon:"🔔", label:"Thông báo",        tab:"notifications",color:"bg-orange-50 text-orange-600 hover:bg-orange-100" },
+          ].map(item => (
+            <button key={item.tab} onClick={() => onNav(item.tab)}
+              className={`flex flex-col items-center gap-2 p-4 rounded-2xl font-semibold text-sm transition-all border border-transparent hover:border-current/10 ${item.color}`}>
+              <span className="text-3xl">{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// DASHBOARD — Phân luồng theo role
 // ============================================================
 function Dashboard({ user, onNav }) {
-  const unread = MOCK_NOTIFICATIONS.filter(n => !n.read && n.forRoles.includes(user.role)).length;
+  // Bệnh nhân có dashboard riêng
+  if (user.role === "patient") return <PatientDashboard user={user} onNav={onNav} />;
+
+  const unread = MOCK_NOTIFICATIONS.filter(n => !n.read).length;
   return (
     <div className="space-y-6">
       <div>
@@ -356,114 +578,482 @@ function Dashboard({ user, onNav }) {
 }
 
 // ============================================================
+// BOOKING FORM MODAL — Biểu mẫu đăng ký khám (multi-step)
+// ============================================================
+const SPECIALTY_INFO = {
+  "Tim mạch":       { icon: "❤️",  desc: "Khám và điều trị các bệnh lý tim mạch, huyết áp", color: "#ef4444", bg: "bg-red-50",    border: "border-red-200",    text: "text-red-600"    },
+  "Nhi khoa":       { icon: "👶",  desc: "Chăm sóc sức khỏe trẻ em từ sơ sinh đến 16 tuổi", color: "#10b981", bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-600" },
+  "Ngoại tổng quát":{ icon: "🔬", desc: "Phẫu thuật và điều trị các bệnh ngoại khoa",        color: "#f59e0b", bg: "bg-amber-50",   border: "border-amber-200",   text: "text-amber-600"   },
+  "Da liễu":        { icon: "✨",  desc: "Chẩn đoán và điều trị các bệnh về da",              color: "#8b5cf6", bg: "bg-violet-50",  border: "border-violet-200",  text: "text-violet-600"  },
+};
+
+const APT_TYPES = [
+  { value: "Khám bệnh",    icon: "🩺", desc: "Khám và tư vấn lần đầu" },
+  { value: "Tái khám",     icon: "🔄", desc: "Theo dõi tiến trình điều trị" },
+  { value: "Khám định kỳ", icon: "📋", desc: "Kiểm tra sức khỏe định kỳ" },
+  { value: "Khám cấp cứu", icon: "🚨", desc: "Ưu tiên xử lý khẩn cấp" },
+];
+
+function BookingFormModal({ open, onClose, onSubmit, user, appointments }) {
+  const STEPS = ["Chuyên khoa", "Bác sĩ", "Ngày & Giờ"];
+  const [step, setStep]           = useState(0);
+  const [specialty, setSpecialty] = useState("");
+  const [doctorId,  setDoctorId]  = useState(null);
+  const [date,      setDate]      = useState("");
+  const [time,      setTime]      = useState("");
+  const [aptType,   setAptType]   = useState("Khám bệnh");
+  const [notes,     setNotes]     = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [done,      setDone]      = useState(false);
+
+  const today    = new Date().toISOString().split("T")[0];
+  const specList = [...new Set(MOCK_DOCTORS.map(d => d.specialty))];
+  const doctors  = specialty ? MOCK_DOCTORS.filter(d => d.specialty === specialty) : [];
+  const doctor   = MOCK_DOCTORS.find(d => d.id === doctorId);
+  const bookedSlots = doctor && date
+    ? appointments.filter(a => a.doctorId === doctor.id && a.date === date && a.status !== "cancelled").map(a => a.time)
+    : [];
+
+  // Bước 2 hoàn thành khi có đủ: ngày + giờ
+  const step2Ready = date !== "" && time !== "";
+
+  const reset = () => {
+    setStep(0); setSpecialty(""); setDoctorId(null);
+    setDate(""); setTime(""); setAptType("Khám bệnh"); setNotes("");
+    setDone(false); setSubmitting(false);
+  };
+  const handleClose = () => { reset(); onClose(); };
+
+  const canNext = [
+    specialty !== "",
+    doctorId !== null,
+    false, // bước 2 không có "Tiếp theo", chỉ có nút xác nhận
+  ][step];
+
+  const handleConfirm = () => {
+    if (!step2Ready) return;
+    setSubmitting(true);
+    setTimeout(() => {
+      onSubmit({ doctor, specialty, date, time, aptType, notes });
+      setSubmitting(false);
+      setDone(true);
+    }, 900);
+  };
+
+  if (!open) return null;
+
+  // ---- Success screen ----
+  if (done) return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)" }}>
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-10 text-center">
+        <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center text-5xl mx-auto mb-5 animate-bounce">✅</div>
+        <h3 className="text-2xl font-black text-gray-800 mb-2">Đặt lịch thành công!</h3>
+        <p className="text-gray-500 mb-1">Bác sĩ <strong>{doctor?.name}</strong></p>
+        <p className="text-gray-500 mb-1">{aptType} — {date} lúc {time}</p>
+        <p className="text-sm text-blue-500 mt-3 bg-blue-50 rounded-xl px-4 py-2 inline-block">📱 Bạn sẽ nhận thông báo xác nhận qua SMS</p>
+        <button onClick={handleClose} className="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-2xl transition-colors">
+          Đóng
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)" }}>
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[92vh]">
+
+        {/* ── Header ── */}
+        <div className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-black text-gray-900">Đăng ký khám bệnh</h2>
+              <p className="text-gray-400 text-xs mt-0.5">Điền thông tin để đặt lịch với bác sĩ</p>
+            </div>
+            <button onClick={handleClose} className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 text-lg font-bold transition-colors">×</button>
+          </div>
+
+          {/* Step indicator */}
+          <div className="flex items-center gap-1">
+            {STEPS.map((label, i) => (
+              <React.Fragment key={i}>
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    i < step ? "bg-blue-500 text-white" : i === step ? "bg-blue-500 text-white ring-4 ring-blue-100" : "bg-gray-100 text-gray-400"
+                  }`}>
+                    {i < step ? "✓" : i + 1}
+                  </div>
+                  <span className={`text-xs font-semibold hidden sm:block transition-colors ${i === step ? "text-blue-600" : i < step ? "text-gray-500" : "text-gray-300"}`}>{label}</span>
+                </div>
+                {i < STEPS.length - 1 && <div className={`flex-1 h-0.5 mx-1 rounded-full transition-all ${i < step ? "bg-blue-500" : "bg-gray-100"}`} />}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Body ── */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+
+          {/* STEP 0: Chuyên khoa */}
+          {step === 0 && (
+            <div className="space-y-3">
+              <p className="text-sm font-bold text-gray-600 uppercase tracking-widest">Chọn chuyên khoa</p>
+              {specList.map(sp => {
+                const info = SPECIALTY_INFO[sp] || { icon: "🏥", desc: "", bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-600" };
+                const active = specialty === sp;
+                return (
+                  <button key={sp} onClick={() => { setSpecialty(sp); setDoctorId(null); setTime(""); }}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left ${active ? `${info.bg} ${info.border} shadow-md` : "border-gray-100 bg-gray-50 hover:border-gray-200 hover:bg-white hover:shadow-sm"}`}>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 ${active ? "bg-white shadow-sm" : "bg-white"}`}>
+                      {info.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-bold text-base ${active ? info.text : "text-gray-700"}`}>{sp}</p>
+                      <p className="text-gray-400 text-xs mt-0.5">{info.desc}</p>
+                      <p className="text-gray-300 text-xs mt-1">
+                        {MOCK_DOCTORS.filter(d => d.specialty === sp && d.available).length} bác sĩ đang nhận lịch
+                      </p>
+                    </div>
+                    {active && <span className="text-2xl flex-shrink-0">{info.icon.replace(/[^\u0000-\u00FF]/g,"")}</span>}
+                    {active && (
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0`} style={{ background: info.color }}>
+                        <span className="text-white text-xs font-black">✓</span>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* STEP 1: Bác sĩ */}
+          {step === 1 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xl">{SPECIALTY_INFO[specialty]?.icon}</span>
+                <p className="text-sm font-bold text-gray-600 uppercase tracking-widest">Chọn bác sĩ — {specialty}</p>
+              </div>
+              {doctors.map(doc => {
+                const active = doctorId === doc.id;
+                return (
+                  <button key={doc.id} onClick={() => { if (doc.available) { setDoctorId(doc.id); setTime(""); } }}
+                    disabled={!doc.available}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left ${
+                      !doc.available ? "border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed"
+                      : active ? "border-blue-400 bg-blue-50 shadow-md"
+                      : "border-gray-100 bg-white hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-sm"
+                    }`}>
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-white text-sm flex-shrink-0 shadow-sm"
+                      style={{ background: doc.color }}>
+                      {doc.avatar}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-bold text-base ${active ? "text-blue-700" : "text-gray-800"}`}>{doc.name}</p>
+                      <p className="text-gray-400 text-xs mt-0.5">{doc.specialty}</p>
+                      <div className="flex gap-1.5 mt-2 flex-wrap">
+                        {doc.schedule.slice(0,4).map(t => (
+                          <span key={t} className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-mono">{t}</span>
+                        ))}
+                        {doc.schedule.length > 4 && <span className="text-[10px] text-gray-400">+{doc.schedule.length - 4}</span>}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${doc.available ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"}`}>
+                        {doc.available ? "🟢 Nhận lịch" : "🔴 Nghỉ phép"}
+                      </span>
+                      {active && (
+                        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                          <span className="text-white text-xs font-black">✓</span>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* STEP 2: Ngày & Giờ */}
+          {step === 2 && doctor && (
+            <div className="space-y-5">
+              {/* Doctor summary */}
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-xs flex-shrink-0" style={{ background: doctor.color }}>{doctor.avatar}</div>
+                <div><p className="font-bold text-gray-800 text-sm">{doctor.name}</p><p className="text-gray-400 text-xs">{doctor.specialty}</p></div>
+              </div>
+
+              {/* Ngày khám */}
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">📅 Chọn ngày khám</label>
+                <input type="date" value={date} min={today}
+                  onChange={e => { setDate(e.target.value); setTime(""); }}
+                  className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-blue-400 transition-colors bg-gray-50 hover:bg-white" />
+              </div>
+
+              {/* Giờ khám */}
+              {date && (
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-3">⏰ Chọn giờ khám</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {doctor.schedule.map(t => {
+                      const booked = bookedSlots.includes(t);
+                      const active = time === t;
+                      return (
+                        <button key={t} disabled={booked} onClick={() => setTime(t)}
+                          className={`py-3 rounded-2xl text-sm font-bold border-2 transition-all flex flex-col items-center gap-0.5 ${
+                            booked ? "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed"
+                            : active ? "bg-blue-500 text-white border-blue-500 shadow-lg scale-105"
+                            : "bg-white text-gray-700 border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-sm"
+                          }`}>
+                          {t}
+                          {booked && <span className="text-[8px] font-normal text-gray-300">Đã đặt</span>}
+                          {active && <span className="text-[9px] font-bold text-blue-100">Đã chọn</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {date && doctor.schedule.every(t => bookedSlots.includes(t)) && (
+                    <p className="mt-3 text-sm text-orange-500 bg-orange-50 rounded-xl px-4 py-2">⚠️ Ngày này đã kín lịch. Vui lòng chọn ngày khác.</p>
+                  )}
+                </div>
+              )}
+
+              {/* Loại khám */}
+              {time && (
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-3">🩺 Loại khám</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {APT_TYPES.map(({ value, icon, desc }) => (
+                      <button key={value} onClick={() => setAptType(value)}
+                        className={`flex items-start gap-3 p-3 rounded-2xl border-2 text-left transition-all ${
+                          aptType === value ? "border-indigo-400 bg-indigo-50 shadow-md" : "border-gray-100 bg-gray-50 hover:border-indigo-200 hover:bg-indigo-50/30"
+                        }`}>
+                        <span className="text-2xl flex-shrink-0">{icon}</span>
+                        <div>
+                          <p className={`text-xs font-bold ${aptType === value ? "text-indigo-700" : "text-gray-700"}`}>{value}</p>
+                          <p className="text-[10px] text-gray-400 mt-0.5 leading-tight">{desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Ghi chú */}
+              {time && (
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">📝 Ghi chú (tuỳ chọn)</label>
+                  <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2}
+                    placeholder="Mô tả triệu chứng, tiền sử bệnh, yêu cầu đặc biệt..."
+                    className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-blue-400 bg-gray-50 hover:bg-white resize-none transition-colors" />
+                </div>
+              )}
+
+              {/* ── Summary + Confirm button — hiện ngay sau khi chọn xong ngày & giờ ── */}
+              {step2Ready && doctor && (
+                <div className="mt-2 space-y-3">
+                  {/* Summary mini */}
+                  <div className="rounded-2xl overflow-hidden border-2 border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50">
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-blue-100 bg-white/60">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-xs flex-shrink-0 shadow-sm" style={{ background: doctor.color }}>{doctor.avatar}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-gray-800 text-sm truncate">{doctor.name}</p>
+                        <p className="text-gray-400 text-xs">{SPECIALTY_INFO[specialty]?.icon} {specialty}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-black text-blue-600">250.000đ</p>
+                        <p className="text-gray-400 text-xs">phí ước tính</p>
+                      </div>
+                    </div>
+                    <div className="px-4 py-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+                      {[["📅 Ngày", date], ["⏰ Giờ", time], ["🩺 Loại", aptType], ["👤 Bệnh nhân", user.name]].map(([k, v]) => (
+                        <div key={k} className="flex items-center gap-1.5">
+                          <span className="text-gray-400 text-xs whitespace-nowrap">{k}:</span>
+                          <span className="font-semibold text-gray-700 text-xs truncate">{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-400 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
+                    💡 Lịch sẽ ở trạng thái <strong>"Chờ xác nhận"</strong> cho đến khi bác sĩ phê duyệt. Bạn sẽ nhận thông báo qua SMS/Email.
+                  </p>
+
+                  {/* Nút xác nhận đặt lịch */}
+                  <button onClick={handleConfirm} disabled={submitting}
+                    className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl font-black text-base transition-all shadow-lg hover:shadow-xl disabled:opacity-60 flex items-center justify-center gap-2">
+                    {submitting ? (
+                      <><span className="animate-spin inline-block">⏳</span> Đang xử lý...</>
+                    ) : (
+                      <><span className="text-xl">✅</span> Xác nhận đặt lịch</>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ── Footer navigation ── */}
+        <div className="px-6 pb-6 pt-3 border-t border-gray-100 flex gap-3 flex-shrink-0">
+          {step > 0 && (
+            <button onClick={() => setStep(s => s - 1)}
+              className="flex-1 py-3 border-2 border-gray-200 text-gray-600 rounded-2xl font-bold text-sm hover:bg-gray-50 transition-colors">
+              ← Quay lại
+            </button>
+          )}
+          {step < STEPS.length - 1 && (
+            <button onClick={() => setStep(s => s + 1)} disabled={!canNext}
+              className="flex-1 py-3 bg-blue-500 text-white rounded-2xl font-bold text-sm hover:bg-blue-600 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed">
+              Tiếp theo →
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // APPOINTMENTS
 // ============================================================
 function Appointments({ user }) {
   const [appointments, setAppointments] = useState(MOCK_APPOINTMENTS);
-  const [showModal, setShowModal] = useState(false);
-  const [filter, setFilter] = useState("all");
-  const [form, setForm] = useState({ patientName: "", doctorId: "", date: "", time: "", type: "Khám bệnh" });
-  const [toast, setToast] = useState("");
+  const [showBooking, setShowBooking]   = useState(false);
+  const [filter, setFilter]             = useState("all");
+  const [toast, setToast]               = useState("");
 
-  const filtered = appointments.filter(a => filter === "all" || a.status === filter);
+  const isPatient = user.role === "patient";
+  const myAppointments = isPatient && user.patientId
+    ? appointments.filter(a => a.patientId === user.patientId)
+    : appointments;
+  const filtered = myAppointments.filter(a => filter === "all" || a.status === filter);
 
-  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 4000); };
 
-  const handleBook = () => {
-    if (!form.patientName || !form.doctorId || !form.date || !form.time) { showToast("Vui lòng điền đầy đủ thông tin!"); return; }
-    const doc = MOCK_DOCTORS.find(d => d.id === parseInt(form.doctorId));
-    const newApt = { id: `LK00${appointments.length + 1}`, patientId: "BN_NEW", patientName: form.patientName, doctorId: parseInt(form.doctorId), doctorName: doc?.name || "", specialty: doc?.specialty || "", date: form.date, time: form.time, status: "pending", type: form.type, fee: 250000 };
-    setAppointments([...appointments, newApt]);
-    setShowModal(false);
-    setForm({ patientName: "", doctorId: "", date: "", time: "", type: "Khám bệnh" });
-    showToast("✅ Đặt lịch thành công! Bệnh nhân sẽ nhận được thông báo qua SMS/Email.");
+  const handleBook = ({ doctor, specialty, date, time, aptType, notes }) => {
+    const newId = "LK" + String(appointments.length + 1).padStart(3, "0");
+    const newApt = {
+      id: newId,
+      patientId:   user.patientId || "BN_GUEST",
+      patientName: user.name,
+      doctorId:    doctor.id,
+      doctorName:  doctor.name,
+      specialty,
+      date, time,
+      status: "pending",
+      type:   aptType,
+      fee:    250000,
+      notes:  notes || "",
+    };
+    // Cập nhật dữ liệu vào state (và MOCK_APPOINTMENTS để đồng bộ toàn app)
+    setAppointments(prev => {
+      const updated = [...prev, newApt];
+      MOCK_APPOINTMENTS.push(newApt);
+      return updated;
+    });
+    showToast(`✅ Đặt lịch thành công! Bác sĩ ${doctor.name} sẽ xác nhận sớm.`);
   };
 
-  const handleCancel = (id) => {
-    setAppointments(appointments.map(a => a.id === id ? {...a, status: "cancelled"} : a));
-    showToast("Đã hủy lịch khám");
-  };
-  const handleConfirm = (id) => {
-    setAppointments(appointments.map(a => a.id === id ? {...a, status: "confirmed"} : a));
-    showToast("✅ Đã xác nhận lịch khám");
-  };
+  const handleCancel  = (id) => { setAppointments(prev => prev.map(a => a.id === id ? {...a, status:"cancelled"}  : a)); showToast("Đã hủy lịch khám."); };
+  const handleConfirm = (id) => { setAppointments(prev => prev.map(a => a.id === id ? {...a, status:"confirmed"} : a)); showToast("✅ Đã xác nhận lịch khám."); };
+
+  const tabLabels = [["all","Tất cả"],["pending","Chờ xác nhận"],["confirmed","Đã xác nhận"],["waiting","Chờ khám"],["completed","Hoàn thành"],["cancelled","Đã hủy"]];
 
   return (
     <div className="space-y-5">
-      {toast && <div className="fixed top-5 right-5 z-50 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm font-medium animate-bounce">{toast}</div>}
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-5 right-5 z-50 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm font-medium flex items-center gap-2 animate-fade-in">
+          {toast}
+        </div>
+      )}
+
+      {/* Booking modal */}
+      <BookingFormModal
+        open={showBooking}
+        onClose={() => setShowBooking(false)}
+        onSubmit={handleBook}
+        user={user}
+        appointments={appointments}
+      />
+
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-2xl font-black text-gray-800">Quản lý lịch khám</h2>
-          <p className="text-gray-500 text-sm">Tổng cộng {appointments.length} lịch khám</p>
+          <h2 className="text-2xl font-black text-gray-800">
+            {isPatient ? "Lịch khám của tôi" : "Quản lý lịch khám"}
+          </h2>
+          <p className="text-gray-500 text-sm">{myAppointments.length} lịch khám</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-colors shadow-sm">
-          <span>+</span> Đặt lịch mới
+        <button onClick={() => setShowBooking(true)}
+          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl font-bold text-sm transition-all shadow-md hover:shadow-lg">
+          <span className="text-base">📅</span> Đăng ký khám
         </button>
       </div>
+
+      {/* Filter tabs */}
       <div className="flex gap-2 flex-wrap">
-        {[["all","Tất cả"],["pending","Chờ xác nhận"],["confirmed","Đã xác nhận"],["waiting","Chờ khám"],["completed","Hoàn thành"],["cancelled","Đã hủy"]].map(([v,l]) => (
-          <button key={v} onClick={() => setFilter(v)} className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${filter === v ? "bg-blue-500 text-white shadow" : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"}`}>{l}</button>
-        ))}
+        {tabLabels.map(([v,l]) => {
+          const count = myAppointments.filter(a => v === "all" || a.status === v).length;
+          return (
+            <button key={v} onClick={() => setFilter(v)}
+              className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 ${filter === v ? "bg-blue-500 text-white shadow" : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"}`}>
+              {l}
+              <span className={`text-xs rounded-full px-1.5 py-0.5 font-bold ${filter === v ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"}`}>{count}</span>
+            </button>
+          );
+        })}
       </div>
+
+      {/* Table / Card list */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead><tr className="bg-gray-50 border-b border-gray-100">
-              {["Mã LK","Bệnh nhân","Bác sĩ","Ngày khám","Giờ","Loại khám","Trạng thái","Hành động"].map(h => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
-              ))}
-            </tr></thead>
-            <tbody className="divide-y divide-gray-50">
-              {filtered.map(apt => (
-                <tr key={apt.id} className="hover:bg-blue-50/30 transition-colors">
-                  <td className="px-4 py-3 font-mono text-xs text-gray-500">{apt.id}</td>
-                  <td className="px-4 py-3"><p className="font-semibold text-gray-800">{apt.patientName}</p></td>
-                  <td className="px-4 py-3"><p className="text-gray-700">{apt.doctorName}</p><p className="text-gray-400 text-xs">{apt.specialty}</p></td>
-                  <td className="px-4 py-3 text-gray-700">{apt.date}</td>
-                  <td className="px-4 py-3 font-semibold text-blue-600">{apt.time}</td>
-                  <td className="px-4 py-3 text-gray-600">{apt.type}</td>
-                  <td className="px-4 py-3"><Badge status={apt.status} /></td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1.5">
-                      {apt.status === "pending" && <button onClick={() => handleConfirm(apt.id)} className="px-2.5 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold hover:bg-green-200 transition-colors">Xác nhận</button>}
-                      {["pending","confirmed","waiting"].includes(apt.status) && <button onClick={() => handleCancel(apt.id)} className="px-2.5 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-200 transition-colors">Hủy</button>}
-                    </div>
-                  </td>
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 text-gray-400">
+            <span className="text-5xl block mb-3">📭</span>
+            <p className="font-semibold text-gray-500 mb-1">Không có lịch khám nào</p>
+            <p className="text-sm text-gray-400 mb-4">Hãy đặt lịch khám đầu tiên của bạn</p>
+            <button onClick={() => setShowBooking(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow-sm">
+              📅 Đăng ký khám ngay
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100">
+                  {["Mã LK","Bệnh nhân","Bác sĩ","Chuyên khoa","Ngày","Giờ","Loại","Trạng thái",""].map(h => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {filtered.length === 0 && <div className="text-center py-12 text-gray-400"><span className="text-4xl block mb-2">📭</span>Không có lịch khám nào</div>}
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {filtered.map(apt => (
+                  <tr key={apt.id} className="hover:bg-blue-50/30 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs text-gray-400">{apt.id}</td>
+                    <td className="px-4 py-3 font-semibold text-gray-800">{apt.patientName}</td>
+                    <td className="px-4 py-3 text-gray-700">{apt.doctorName}</td>
+                    <td className="px-4 py-3 text-gray-500 text-xs">{apt.specialty}</td>
+                    <td className="px-4 py-3 text-gray-700">{apt.date}</td>
+                    <td className="px-4 py-3 font-semibold text-blue-600">{apt.time}</td>
+                    <td className="px-4 py-3 text-gray-600 text-xs">{apt.type}</td>
+                    <td className="px-4 py-3"><Badge status={apt.status} /></td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1.5">
+                        {apt.status === "pending" && !isPatient && (
+                          <button onClick={() => handleConfirm(apt.id)} className="px-2.5 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold hover:bg-green-200 transition-colors whitespace-nowrap">Xác nhận</button>
+                        )}
+                        {["pending","confirmed","waiting"].includes(apt.status) && (
+                          <button onClick={() => handleCancel(apt.id)} className="px-2.5 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-200 transition-colors">Hủy</button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Đặt lịch khám mới">
-        <div className="space-y-4">
-          <div><label className="text-sm font-semibold text-gray-700 block mb-1.5">Họ tên bệnh nhân *</label>
-            <input value={form.patientName} onChange={e => setForm({...form, patientName: e.target.value})} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400" placeholder="Nhập họ tên bệnh nhân" /></div>
-          <div><label className="text-sm font-semibold text-gray-700 block mb-1.5">Chọn bác sĩ *</label>
-            <select value={form.doctorId} onChange={e => setForm({...form, doctorId: e.target.value})} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400">
-              <option value="">-- Chọn bác sĩ --</option>
-              {MOCK_DOCTORS.map(d => <option key={d.id} value={d.id}>{d.name} — {d.specialty}</option>)}
-            </select></div>
-          <div className="grid grid-cols-2 gap-3">
-            <div><label className="text-sm font-semibold text-gray-700 block mb-1.5">Ngày khám *</label>
-              <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400" /></div>
-            <div><label className="text-sm font-semibold text-gray-700 block mb-1.5">Giờ khám *</label>
-              <select value={form.time} onChange={e => setForm({...form, time: e.target.value})} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400">
-                <option value="">-- Chọn giờ --</option>
-                {["08:00","08:30","09:00","09:30","10:00","10:30","11:00","13:30","14:00","14:30","15:00","15:30","16:00"].map(t => <option key={t} value={t}>{t}</option>)}
-              </select></div>
-          </div>
-          <div><label className="text-sm font-semibold text-gray-700 block mb-1.5">Loại khám</label>
-            <select value={form.type} onChange={e => setForm({...form, type: e.target.value})} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400">
-              {["Khám bệnh","Tái khám","Khám định kỳ","Khám cấp cứu"].map(t => <option key={t}>{t}</option>)}
-            </select></div>
-          <div className="flex gap-3 pt-2">
-            <button onClick={() => setShowModal(false)} className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors">Hủy</button>
-            <button onClick={handleBook} className="flex-1 bg-blue-500 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-blue-600 transition-colors">Đặt lịch</button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }
@@ -472,26 +1062,32 @@ function Appointments({ user }) {
 // MEDICAL RECORDS
 // ============================================================
 function MedicalRecords({ user }) {
-  const [selected, setSelected] = useState(null);
+  const isPatient = user.role === "patient";
+  const selfPatient = isPatient && user.patientId
+    ? MOCK_PATIENTS.find(p => p.id === user.patientId) || null
+    : null;
+  const [selected, setSelected] = useState(selfPatient);
   const [showAdd, setShowAdd] = useState(false);
   const [search, setSearch] = useState("");
 
-  const patients = MOCK_PATIENTS.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()));
+  const patients = isPatient
+    ? (selfPatient ? [selfPatient] : [])
+    : MOCK_PATIENTS.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()));
   const getRecords = (pid) => MOCK_RECORDS.filter(r => r.patientId === pid);
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div><h2 className="text-2xl font-black text-gray-800">Hồ sơ bệnh án điện tử</h2><p className="text-gray-500 text-sm">Lưu trữ toàn bộ lịch sử khám và điều trị</p></div>
-        {(user.role === "doctor" || user.role === "admin") && (
+        {(user.role === "director" || user.role === "manager") && (
           <button onClick={() => setShowAdd(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-colors shadow-sm">
             <span>+</span> Tạo hồ sơ mới
           </button>
         )}
       </div>
-      <input value={search} onChange={e => setSearch(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400" placeholder="🔍 Tìm kiếm bệnh nhân theo tên hoặc mã..." />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="space-y-3">
+      {!isPatient && <input value={search} onChange={e => setSearch(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400" placeholder="🔍 Tìm kiếm bệnh nhân theo tên hoặc mã..." />}
+      <div className={`grid grid-cols-1 ${!isPatient ? "lg:grid-cols-3" : ""} gap-5`}>
+        {!isPatient && <div className="space-y-3">
           <h3 className="font-bold text-gray-600 text-sm uppercase tracking-wide">Danh sách bệnh nhân ({patients.length})</h3>
           {patients.map(p => {
             const recs = getRecords(p.id);
@@ -508,8 +1104,8 @@ function MedicalRecords({ user }) {
               </button>
             );
           })}
-        </div>
-        <div className="lg:col-span-2">
+        </div>}
+        <div className={!isPatient ? "lg:col-span-2" : ""}>
           {!selected ? (
             <div className="bg-white rounded-2xl border border-gray-100 h-64 flex items-center justify-center text-gray-400 flex-col gap-2">
               <span className="text-5xl">📋</span>
@@ -590,18 +1186,134 @@ function MedicalRecords({ user }) {
 // ============================================================
 // PAYMENTS
 // ============================================================
+// QR Payment Modal — hiển thị mã QR và chờ xác nhận
+function QRPaymentModal({ open, onClose, invoice, onConfirm }) {
+  const [confirmed, setConfirmed] = useState(false);
+
+  // Reset state mỗi khi mở modal mới
+  useEffect(() => {
+    if (open) setConfirmed(false);
+  }, [open, invoice]);
+
+  if (!invoice) return null;
+
+  const qrData = encodeURIComponent(
+    `MedCare|INV:${invoice.id}|AMT:${invoice.total}|PT:${invoice.patientName}|TS:${Date.now()}`
+  );
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrData}&color=1d4ed8&bgcolor=ffffff&qzone=2`;
+
+  const handleConfirm = () => {
+    setConfirmed(true);
+    setTimeout(() => {
+      onConfirm();
+    }, 900);
+  };
+
+  return (
+    <Modal open={open} onClose={onClose} title="Thanh toán QR Code" size="md">
+      <div className="space-y-5">
+        {/* Thông tin hóa đơn */}
+        <div className="bg-blue-50 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-blue-500 font-semibold uppercase tracking-wide">Hóa đơn</p>
+            <p className="text-base font-bold text-gray-800">{invoice.patientName}</p>
+            <p className="text-xs text-gray-500 font-mono">{invoice.id}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-gray-500">Số tiền</p>
+            <p className="text-2xl font-black text-blue-600">{invoice.total.toLocaleString("vi-VN")}đ</p>
+          </div>
+        </div>
+
+        {/* Hướng dẫn */}
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-3">
+          <span className="text-lg mt-0.5">📱</span>
+          <p className="text-sm text-amber-800 leading-relaxed">
+            Mở ứng dụng ngân hàng hoặc ví điện tử, chọn <strong>Quét mã QR</strong>, sau đó quét mã bên dưới để thanh toán. Nhấn <strong>Xác nhận đã thanh toán</strong> sau khi chuyển tiền thành công.
+          </p>
+        </div>
+
+        {/* QR Code */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative">
+            <div className="w-60 h-60 rounded-2xl border-2 border-blue-200 bg-white p-2 shadow-lg flex items-center justify-center">
+              <img
+                src={qrUrl}
+                alt="QR thanh toán"
+                className="w-full h-full rounded-xl"
+                onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }}
+              />
+              <div style={{display:'none'}} className="w-full h-full flex flex-col items-center justify-center gap-2 text-gray-400">
+                <span className="text-4xl">📱</span>
+                <p className="text-xs text-center">Không tải được mã QR.<br/>Vui lòng kiểm tra kết nối.</p>
+              </div>
+            </div>
+            {/* Corner decorators */}
+            <div className="absolute -top-1 -left-1 w-5 h-5 border-t-2 border-l-2 border-blue-500 rounded-tl-lg" />
+            <div className="absolute -top-1 -right-1 w-5 h-5 border-t-2 border-r-2 border-blue-500 rounded-tr-lg" />
+            <div className="absolute -bottom-1 -left-1 w-5 h-5 border-b-2 border-l-2 border-blue-500 rounded-bl-lg" />
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 border-b-2 border-r-2 border-blue-500 rounded-br-lg" />
+          </div>
+          <p className="text-xs text-gray-400 text-center">Hỗ trợ: VietQR · MoMo · ZaloPay · VNPay</p>
+        </div>
+
+        {/* Buttons */}
+        {!confirmed ? (
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <button
+              onClick={onClose}
+              className="py-3 px-4 border border-gray-200 text-gray-600 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={handleConfirm}
+              className="py-3 px-4 bg-green-600 text-white rounded-xl font-semibold text-sm hover:bg-green-700 transition-colors flex items-center justify-center gap-2 shadow-sm"
+            >
+              <span>✅</span> Xác nhận đã thanh toán
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2 py-3">
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl animate-bounce">✅</div>
+            <p className="text-green-700 font-semibold text-sm">Đang xác nhận thanh toán...</p>
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
+}
+
+// ============================================================
 function Payments({ user }) {
   const [invoices, setInvoices] = useState(MOCK_INVOICES);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(null);       // invoice đang chọn phương thức
+  const [qrInvoice, setQrInvoice] = useState(null);     // invoice đang hiện QR
   const [filter, setFilter] = useState("all");
 
-  const filtered = invoices.filter(i => filter === "all" || i.status === filter);
-  const totalRevenue = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.total, 0);
-  const totalPending = invoices.filter(i => i.status === "pending").reduce((s, i) => s + i.total, 0);
+  const myInvoices = user.role === "patient" && user.patientId
+    ? invoices.filter(i => i.patientId === user.patientId)
+    : invoices;
+  const filtered = myInvoices.filter(i => filter === "all" || i.status === filter);
+  const totalRevenue = myInvoices.filter(i => i.status === "paid").reduce((s, i) => s + i.total, 0);
+  const totalPending = myInvoices.filter(i => i.status === "pending").reduce((s, i) => s + i.total, 0);
 
-  const handlePay = (id, method) => {
-    setInvoices(invoices.map(i => i.id === id ? {...i, status: "paid", method} : i));
+  const handlePay = (method) => {
+    if (!selected) return;
+    if (method === "QR") {
+      // Chuyển sang modal QR riêng, đóng modal chọn phương thức
+      setQrInvoice(selected);
+      setSelected(null);
+      return;
+    }
+    setInvoices(invoices.map(i => i.id === selected.id ? {...i, status: "paid", method} : i));
     setSelected(null);
+  };
+
+  const handleConfirmQr = () => {
+    if (!qrInvoice) return;
+    setInvoices(invoices.map(i => i.id === qrInvoice.id ? {...i, status: "paid", method: "QR"} : i));
+    setQrInvoice(null);
   };
 
   return (
@@ -633,9 +1345,13 @@ function Payments({ user }) {
                   <td className="px-4 py-3 text-gray-600">{inv.date}</td>
                   <td className="px-4 py-3 text-gray-600 text-xs">{inv.services.map(s=>s.name).join(", ")}</td>
                   <td className="px-4 py-3 font-bold text-gray-800">{inv.total.toLocaleString("vi-VN")}đ</td>
-                  <td className="px-4 py-3"><Badge status={inv.status} /></td>
                   <td className="px-4 py-3">
-                    {inv.status === "pending" ? (
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${inv.status === "paid" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                      {inv.status === "paid" ? "Đã thanh toán" : "Chưa thanh toán"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {inv.status === "pending" && user.role !== "patient" ? (
                       <button onClick={() => setSelected(inv)} className="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-semibold hover:bg-blue-600 transition-colors">Thanh toán</button>
                     ) : (
                       <span className="text-xs text-gray-400">{inv.method}</span>
@@ -647,7 +1363,9 @@ function Payments({ user }) {
           </table>
         </div>
       </div>
-      <Modal open={!!selected} onClose={() => setSelected(null)} title="Xác nhận thanh toán">
+
+      {/* Modal chọn phương thức thanh toán */}
+      <Modal open={!!selected} onClose={() => setSelected(null)} title="Chọn phương thức thanh toán">
         {selected && (
           <div className="space-y-4">
             <div className="bg-gray-50 rounded-xl p-4 space-y-2">
@@ -663,16 +1381,30 @@ function Payments({ user }) {
               </div>
             </div>
             <p className="text-sm font-semibold text-gray-700">Chọn phương thức thanh toán:</p>
-            <div className="grid grid-cols-3 gap-3">
-              {[["💵","Tiền mặt"],["🏦","Chuyển khoản"],["💳","Thẻ"]].map(([icon,method]) => (
-                <button key={method} onClick={() => handlePay(selected.id, method)} className="flex flex-col items-center gap-2 p-4 border-2 border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all font-semibold text-sm text-gray-700">
-                  <span className="text-2xl">{icon}</span>{method}
+            <div className="grid grid-cols-2 gap-3">
+              {[["💵","Tiền mặt"],["🏦","Chuyển khoản"],["💳","Thẻ"],["📱","Mã QR"]].map(([icon,method]) => (
+                <button
+                  key={method}
+                  onClick={() => handlePay(method === "Mã QR" ? "QR" : method)}
+                  className={`flex flex-col items-center gap-2 p-4 border-2 rounded-xl transition-all font-semibold text-sm text-gray-700 hover:shadow-md ${method === "Mã QR" ? "border-blue-300 bg-blue-50 hover:border-blue-500 hover:bg-blue-100" : "border-gray-200 hover:border-blue-400 hover:bg-blue-50"}`}
+                >
+                  <span className="text-3xl">{icon}</span>
+                  <span>{method}</span>
+                  {method === "Mã QR" && <span className="text-xs text-blue-500 font-normal">VietQR · MoMo · ZaloPay</span>}
                 </button>
               ))}
             </div>
           </div>
         )}
       </Modal>
+
+      {/* Modal QR Payment riêng */}
+      <QRPaymentModal
+        open={!!qrInvoice}
+        onClose={() => setQrInvoice(null)}
+        invoice={qrInvoice}
+        onConfirm={handleConfirmQr}
+      />
     </div>
   );
 }
@@ -680,28 +1412,15 @@ function Payments({ user }) {
 // ============================================================
 // NOTIFICATIONS
 // ============================================================
-function Notifications({ user }) {
-  // Lấy patientId của user hiện tại (nếu là bệnh nhân)
-  const currentPatient = user.role === "patient"
-    ? MOCK_PATIENTS.find(p => p.name === user.name)
-    : null;
-
-  // Lọc thông báo theo forRoles: mỗi thông báo chỉ hiện cho role phù hợp
-  // Bệnh nhân còn lọc thêm theo patientId
-  const visibleNotifs = MOCK_NOTIFICATIONS.filter(n => {
-    if (!n.forRoles.includes(user.role)) return false;
-    if (user.role === "patient") return currentPatient && n.patientId === currentPatient.id;
-    return true;
-  });
-
-  const [notifs, setNotifs] = useState(visibleNotifs);
+function Notifications() {
+  const [notifs, setNotifs] = useState(MOCK_NOTIFICATIONS);
   const [filter, setFilter] = useState("all");
   const markRead = (id) => setNotifs(notifs.map(n => n.id === id ? {...n, read: true} : n));
   const markAll = () => setNotifs(notifs.map(n => ({...n, read: true})));
 
   const filtered = filter === "unread" ? notifs.filter(n => !n.read) : notifs;
-  const typeIcon = { reminder: "📅", result: "🧪", system: "⚙️", payment: "💳", security: "🔒", login: "🔑", report: "📊" };
-  const typeColor = { reminder: "bg-blue-100 text-blue-600", result: "bg-green-100 text-green-600", system: "bg-gray-100 text-gray-600", payment: "bg-yellow-100 text-yellow-600", security: "bg-red-100 text-red-600", login: "bg-purple-100 text-purple-600", report: "bg-indigo-100 text-indigo-600" };
+  const typeIcon = { reminder: "📅", result: "🧪", system: "⚙️", payment: "💳" };
+  const typeColor = { reminder: "bg-blue-100 text-blue-600", result: "bg-green-100 text-green-600", system: "bg-gray-100 text-gray-600", payment: "bg-yellow-100 text-yellow-600" };
 
   return (
     <div className="space-y-5">
@@ -811,14 +1530,14 @@ function Reports() {
 // ============================================================
 // SETTINGS / ADMIN
 // ============================================================
-function Settings() {
+function Settings({ logs = [] }) {
   const [activeSection, setActiveSection] = useState("users");
 
   return (
     <div className="space-y-5">
       <div><h2 className="text-2xl font-black text-gray-800">Quản trị hệ thống</h2><p className="text-gray-500 text-sm">Cấu hình và phân quyền người dùng</p></div>
       <div className="flex gap-2 flex-wrap">
-        {[["users","👥 Người dùng"],["doctors","👨‍⚕️ Bác sĩ"],["security","🔒 Bảo mật"],["system","⚙️ Hệ thống"]].map(([v,l]) => (
+        {[["users","👥 Người dùng"],["doctors","👨‍⚕️ Bác sĩ"],["security","🔒 Bảo mật"],["system","⚙️ Hệ thống"],["logs","📋 Nhật ký đăng nhập"]].map(([v,l]) => (
           <button key={v} onClick={() => setActiveSection(v)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeSection === v ? "bg-blue-500 text-white shadow" : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"}`}>{l}</button>
         ))}
       </div>
@@ -908,6 +1627,61 @@ function Settings() {
           ))}
         </div>
       )}
+      {activeSection === "logs" && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-gray-700">Nhật ký đăng nhập</h3>
+              <p className="text-xs text-gray-400 mt-0.5">Ghi lại toàn bộ lượt đăng nhập trong phiên làm việc hiện tại</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-lg font-semibold">{logs.length} lượt</span>
+              <span className="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-lg font-semibold">{logs.filter(l=>l.status==="success").length} thành công</span>
+              <span className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded-lg font-semibold">{logs.filter(l=>l.status==="fail").length} thất bại</span>
+            </div>
+          </div>
+          {logs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-gray-300">
+              <span className="text-5xl mb-3">📋</span>
+              <p className="font-semibold text-gray-400">Chưa có nhật ký nào</p>
+              <p className="text-sm text-gray-300 mt-1">Nhật ký sẽ xuất hiện sau mỗi lần đăng nhập</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    {["Thời gian","Tên đăng nhập","Họ tên","Vai trò","Trạng thái","IP"].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {[...logs].reverse().map(log => (
+                    <tr key={log.id} className={`transition-colors ${log.status === "fail" ? "bg-red-50/40 hover:bg-red-50" : "hover:bg-blue-50/20"}`}>
+                      <td className="px-4 py-3 text-xs text-gray-500 font-mono whitespace-nowrap">{log.time}</td>
+                      <td className="px-4 py-3 font-mono font-semibold text-gray-700">{log.username}</td>
+                      <td className="px-4 py-3 text-gray-600">{log.name}</td>
+                      <td className="px-4 py-3">
+                        {log.role !== "—" ? (
+                          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">{log.role}</span>
+                        ) : <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        {log.status === "success"
+                          ? <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">✅ Thành công</span>
+                          : <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-semibold">❌ Thất bại</span>
+                        }
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs text-gray-400">{log.ip}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -919,21 +1693,14 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
+  const [loginLogs, setLoginLogs] = useState([]);
 
-  const currentPatient = user.role === "patient"
-    ? MOCK_PATIENTS.find(p => p.name === user.name)
-    : null;
-  const unreadCount = MOCK_NOTIFICATIONS.filter(n => {
-    if (!n.read && n.forRoles.includes(user.role)) {
-      if (user.role === "patient") return currentPatient && n.patientId === currentPatient.id;
-      return true;
-    }
-    return false;
-  }).length;
+  const getDefaultTab = (u) => u.role === "patient" ? "dashboard" : (NAV[u.role]?.[0]?.id) || "dashboard";
+  const addLog = (entry) => setLoginLogs(prev => [...prev, entry]);
 
   const handleLogout = () => { setUser(null); setActiveTab("dashboard"); };
 
-  if (!user) return <LoginPage onLogin={(u) => { setUser(u); setActiveTab("dashboard"); }} />;
+  if (!user) return <LoginPage onLogin={(u) => { setUser(u); setActiveTab(getDefaultTab(u)); }} onLog={addLog} />;
 
   const renderContent = () => {
     switch (activeTab) {
@@ -941,9 +1708,9 @@ export default function App() {
       case "appointments": return <Appointments user={user} />;
       case "records": return <MedicalRecords user={user} />;
       case "payments": return <Payments user={user} />;
-      case "notifications": return <Notifications user={user} />;
+      case "notifications": return <Notifications />;
       case "reports": return <Reports />;
-      case "settings": return <Settings />;
+      case "settings": return <Settings logs={loginLogs} />;
       default: return <Dashboard user={user} onNav={setActiveTab} />;
     }
   };
@@ -962,7 +1729,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <button onClick={() => setActiveTab("notifications")} className="relative w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
               <span>🔔</span>
-              {unreadCount > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[9px] font-bold flex items-center justify-center">{unreadCount}</span>}
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[9px] font-bold flex items-center justify-center">2</span>
             </button>
             <div className="flex items-center gap-2 cursor-pointer" onClick={handleLogout}>
               <Avatar initials={user.name.charAt(0)} color="#0ea5e9" size="sm" />
